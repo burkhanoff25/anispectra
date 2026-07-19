@@ -19,6 +19,8 @@ interface ProfileClientProps {
   animeHistory: AnimeHistory[];
   mangaHistory: MangaHistory[];
   popularReleases?: AniLibertyRelease[];
+  dbAnimeFavorites?: any[];
+  dbMangaFavorites?: any[];
 }
 
 export default function ProfileClient({
@@ -28,6 +30,8 @@ export default function ProfileClient({
   animeHistory,
   mangaHistory,
   popularReleases = [],
+  dbAnimeFavorites = [],
+  dbMangaFavorites = [],
 }: ProfileClientProps) {
   const [activeTab, setActiveTab] = useState<"anime" | "manga">("anime");
 
@@ -91,6 +95,21 @@ export default function ProfileClient({
   if (avatarUrl === "/" || !avatarUrl) {
     avatarUrl = ""; // Fallback will trigger
   }
+
+  const mergedAnimeFavorites = [
+    ...dbAnimeFavorites.map(fav => ({
+      id: fav.id,
+      alias: fav.titleId,
+      title: fav.titleName,
+      imageSrc: fav.imageSrc
+    })),
+    ...aniFavorites.map(fav => ({
+      id: String(fav.id),
+      alias: fav.alias,
+      title: AnimeService.displayName(fav),
+      imageSrc: AnimeService.posterUrl(fav.poster?.src)
+    }))
+  ];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -179,14 +198,14 @@ export default function ProfileClient({
         <div className="space-y-12">
           <section>
             <h2 className="mb-6 font-display text-2xl font-bold text-paper">Избранное Аниме</h2>
-            {aniFavorites.length > 0 ? (
+            {mergedAnimeFavorites.length > 0 ? (
               <div className="flex overflow-x-auto gap-4 pb-4 snap-x">
-                {aniFavorites.map((fav) => (
+                {mergedAnimeFavorites.map((fav) => (
                   <div key={fav.id} className="w-40 shrink-0 snap-start sm:w-48">
                     <PosterCard
                       href={`/anime/${fav.alias}`}
-                      title={AnimeService.displayName(fav)}
-                      imageSrc={AnimeService.posterUrl(fav.poster?.src)}
+                      title={fav.title}
+                      imageSrc={fav.imageSrc}
                       badge="Избранное"
                     />
                   </div>
@@ -238,10 +257,25 @@ export default function ProfileClient({
         <div className="space-y-12">
           <section>
             <h2 className="mb-6 font-display text-2xl font-bold text-paper">Закладки Манги</h2>
-            <EmptyState
-              title="У вас пока нет сохранённой манги"
-              hint="Добавляйте мангу в закладки, чтобы она появилась здесь."
-            />
+            {dbMangaFavorites.length > 0 ? (
+              <div className="flex overflow-x-auto gap-4 pb-4 snap-x">
+                {dbMangaFavorites.map((fav) => (
+                  <div key={fav.id} className="w-40 shrink-0 snap-start sm:w-48">
+                    <PosterCard
+                      href={`/manga/${fav.mangaId}`}
+                      title={fav.titleName}
+                      imageSrc={fav.imageSrc}
+                      badge="Закладка"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="У вас пока нет сохранённой манги"
+                hint="Добавляйте мангу в закладки, чтобы она появилась здесь."
+              />
+            )}
           </section>
 
           <section>

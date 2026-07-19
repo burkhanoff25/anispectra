@@ -4,6 +4,8 @@ import EpisodePlayer from "@/components/EpisodePlayer";
 import FilmDivider from "@/components/FilmDivider";
 import { AnimeService } from "@/lib/api/anime.service";
 import type { Metadata } from "next";
+import FavoriteButton from "@/components/FavoriteButton";
+import Link from "next/link";
 
 export const revalidate = 300;
 
@@ -71,11 +73,25 @@ export default async function AnimeDetailsPage({ params }: { params: { slug: str
                 </span>
               )}
               {release.genres?.map((g) => (
-                <span key={g.id} className="rounded-full border border-line px-3 py-1 text-xs text-mist">
+                <Link
+                  key={g.id}
+                  href={`/anime?genre=${g.id}`}
+                  className="rounded-full border border-line px-3 py-1 text-xs text-mist transition hover:border-accent hover:text-accent"
+                >
                   {g.name}
-                </span>
+                </Link>
               ))}
             </div>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <FavoriteButton
+                type="anime"
+                id={String(release.id)}
+                titleName={title}
+                imageSrc={img}
+              />
+            </div>
+
             {release.description && (
               <p className="mt-5 max-w-2xl text-sm leading-relaxed text-mist">{release.description}</p>
             )}

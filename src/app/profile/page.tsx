@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { HistoryService } from "@/server/history/HistoryService";
 import { AnimeService } from "@/lib/api/anime.service";
 import type { Metadata } from "next";
+import { prisma } from "@/server/db/client";
 
 import { AnimeHistory, MangaHistory } from "@prisma/client";
 
@@ -34,14 +35,36 @@ export default async function ProfilePage() {
 
   let animeHistory: AnimeHistory[] = [];
   let mangaHistory: MangaHistory[] = [];
+  let dbAnimeFavorites: any[] = [];
+  let dbMangaFavorites: any[] = [];
 
   if (userId || aniLibertyId) {
-    const [aHist, mHist] = await Promise.all([
+    const [aHist, mHist, aFavs, mFavs] = await Promise.all([
       HistoryService.getAnimeHistory({ userId, aniLibertyId }),
       HistoryService.getMangaHistory({ userId, aniLibertyId }),
+      prisma.animeFavorite.findMany({
+        where: {
+          OR: [
+            ...(userId ? [{ userId }] : []),
+            ...(aniLibertyId ? [{ aniLibertyId }] : []),
+          ],
+        },
+        orderBy: { timestamp: "desc" },
+      }),
+      prisma.mangaFavorite.findMany({
+        where: {
+          OR: [
+            ...(userId ? [{ userId }] : []),
+            ...(aniLibertyId ? [{ aniLibertyId }] : []),
+          ],
+        },
+        orderBy: { timestamp: "desc" },
+      }),
     ]);
     animeHistory = aHist;
     mangaHistory = mHist;
+    dbAnimeFavorites = aFavs;
+    dbMangaFavorites = mFavs;
   }
 
   return (
@@ -52,6 +75,8 @@ export default async function ProfilePage() {
       animeHistory={animeHistory}
       mangaHistory={mangaHistory}
       popularReleases={popularReleases}
+      dbAnimeFavorites={dbAnimeFavorites}
+      dbMangaFavorites={dbMangaFavorites}
     />
   );
 }

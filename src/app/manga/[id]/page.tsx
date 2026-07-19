@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MangaService } from "@/lib/api/manga.service";
 import type { Metadata } from "next";
+import FavoriteButton from "@/components/FavoriteButton";
 
 export const revalidate = 3600;
 
@@ -50,6 +51,14 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
         </div>
         <div>
           <h1 className="font-display text-3xl font-black text-paper">{title}</h1>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <FavoriteButton
+              type="manga"
+              id={params.id}
+              titleName={title}
+              imageSrc={img}
+            />
+          </div>
           <div className="mt-8">
             <h2 className="mb-4 font-display text-xl font-bold text-paper">Главы</h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">

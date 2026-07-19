@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { Search } from "lucide-react";
 
 export default function SearchBox() {
   const router = useRouter();
@@ -39,14 +40,15 @@ export default function SearchBox() {
   }
 
   return (
-    <form onSubmit={onSubmit} role="search" className="relative">
+    <form onSubmit={onSubmit} role="search" className="relative flex items-center">
+      <Search className="absolute left-3.5 h-4 w-4 text-mist/70 pointer-events-none" />
       <input
         value={value}
         onChange={(e) => handleChange(e.target.value)}
         type="search"
         name="q"
         placeholder="Найти аниме или мангу…"
-        className="w-full rounded-full border border-line bg-panel px-4 py-2 text-sm text-paper placeholder:text-mist/70 outline-none transition focus:border-violet"
+        className="w-full rounded-full border border-line bg-panel pl-10 pr-4 py-2 text-sm text-paper placeholder:text-mist/70 outline-none transition focus:border-violet focus:bg-panel2"
       />
     </form>
   );

@@ -46,6 +46,8 @@ model User {
   sessions      Session[]
   animeHistory  AnimeHistory[]
   mangaHistory  MangaHistory[]
+  animeFavorites AnimeFavorite[]
+  mangaFavorites MangaFavorite[]
 }
 
 model VerificationToken {
@@ -85,3 +87,32 @@ model MangaHistory {
 
   @@unique([userId, aniLibertyId, mangaId, chapter])
 }
+
+model AnimeFavorite {
+  id              String   @id @default(cuid())
+  userId          String?
+  aniLibertyId    String?
+  titleId         String
+  titleName       String
+  imageSrc        String?
+  timestamp       DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, aniLibertyId, titleId])
+}
+
+model MangaFavorite {
+  id              String   @id @default(cuid())
+  userId          String?
+  aniLibertyId    String?
+  mangaId         String
+  titleName       String
+  imageSrc        String?
+  timestamp       DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, aniLibertyId, mangaId])
+}
+
