@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kinobox Test</title>
+</head>
+<body style="margin: 0; background: #000; display: flex; align-items: center; justify-content: center; height: 100vh;">
+    <div class="kinobox_player" style="width: 800px; height: 450px;"></div>
+    <script src="https://kinobox.tv/kinobox.min.js"></script>
+    <script>
+        new Kinobox('.kinobox_player', {
+            search: { tmdb: 296206 }
+        }).init();
+    </script>
+</body>
+</html>
