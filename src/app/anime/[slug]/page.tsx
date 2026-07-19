@@ -33,8 +33,22 @@ export default async function AnimeDetailsPage({ params }: { params: { slug: str
   const img = AnimeService.posterUrl(release.poster?.src);
   const episodes = release.episodes ?? [];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TVSeries",
+    "name": title,
+    "description": release.description || "",
+    "image": img || "",
+    "genre": release.genres?.map((g) => g.name) || [],
+    "datePublished": release.year ? String(release.year) : undefined,
+  };
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="grid gap-8 md:grid-cols-[220px_1fr]">
           <div className="relative hidden aspect-[2/3] overflow-hidden rounded-2xl border border-line shadow-glow md:block">

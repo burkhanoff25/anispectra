@@ -18,6 +18,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <h1 className="sr-only">Anispectra — смотреть аниме и читать мангу онлайн бесплатно</h1>
       {heroRelease ? (
         <Hero release={heroRelease} />
       ) : (

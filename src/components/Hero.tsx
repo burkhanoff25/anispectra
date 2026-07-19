@@ -13,7 +13,7 @@ export default function Hero({ release }: { release: AniLibertyRelease }) {
         {img && (
           <Image
             src={img}
-            alt=""
+            alt={AnimeService.displayName(release)}
             fill
             priority
             className="object-cover opacity-30 blur-sm scale-105"
@@ -33,9 +33,9 @@ export default function Hero({ release }: { release: AniLibertyRelease }) {
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-teal">
             {release.is_ongoing ? "Онлайн-трансляция" : "Сейчас в топе"}
           </p>
-          <h1 className="font-display text-3xl font-black leading-tight text-paper text-balance sm:text-5xl">
+          <h2 className="font-display text-3xl font-black leading-tight text-paper text-balance sm:text-5xl">
             {AnimeService.displayName(release)}
-          </h1>
+          </h2>
           {release.description && (
             <p className="mt-4 text-sm text-mist sm:text-base">{truncate(release.description, 220)}</p>
           )}

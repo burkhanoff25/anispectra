@@ -3,6 +3,17 @@ import EmptyState from "@/components/EmptyState";
 import { SearchService } from "@/lib/api/search.service";
 import { AnimeService } from "@/lib/api/anime.service";
 import { MangaService } from "@/lib/api/manga.service";
+import type { Metadata } from "next";
+
+export function generateMetadata({ searchParams }: { searchParams: { q?: string } }): Metadata {
+  const q = searchParams.q?.trim() ?? "";
+  return {
+    title: q ? `Поиск: ${q}` : "Поиск аниме и манги",
+    description: q
+      ? `Результаты поиска для "${q}" на Anispectra.`
+      : "Ищите ваши любимые аниме и мангу бесплатно в нашей базе данных."
+  };
+}
 
 export const revalidate = 0;
 

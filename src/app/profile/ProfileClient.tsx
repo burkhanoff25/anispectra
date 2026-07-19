@@ -10,6 +10,7 @@ import PosterCard from "@/components/PosterCard";
 import { AnimeService } from "@/lib/api/anime.service";
 import EmptyState from "@/components/EmptyState";
 import { LogOut, Settings, PlayCircle, BookOpen } from "lucide-react";
+import Link from "next/link";
 
 interface ProfileClientProps {
   aniProfile: AniLibertyProfile | null;
@@ -17,6 +18,7 @@ interface ProfileClientProps {
   googleSession: Session | null;
   animeHistory: AnimeHistory[];
   mangaHistory: MangaHistory[];
+  popularReleases?: AniLibertyRelease[];
 }
 
 export default function ProfileClient({
@@ -25,11 +27,11 @@ export default function ProfileClient({
   googleSession,
   animeHistory,
   mangaHistory,
+  popularReleases = [],
 }: ProfileClientProps) {
   const [activeTab, setActiveTab] = useState<"anime" | "manga">("anime");
 
   const handleLogout = () => {
-    // Standard AniLiberty logout logic would go here (e.g. clear cookies)
     if (googleSession) {
       signOut();
     }
@@ -39,20 +41,46 @@ export default function ProfileClient({
 
   if (!hasAnyAuth) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <h1 className="mb-8 font-display text-3xl font-black text-paper">Профиль</h1>
-        <EmptyState
-          title="Вы не авторизованы"
-          hint="Войдите в аккаунт, чтобы просматривать профиль и историю."
-        />
-        <div className="mt-8 flex gap-4 justify-center">
-          <button
-            onClick={() => signIn("google")}
-            className="rounded-xl border border-line bg-panel px-6 py-3 font-medium text-paper transition hover:border-accent hover:text-accent"
-          >
-            Continue with Google
-          </button>
+        
+        <div className="rounded-3xl border border-line bg-panel p-8 text-center shadow-glow">
+          <EmptyState
+            title="Вы не авторизованы"
+            hint="Войдите в свой аккаунт с помощью Google, чтобы сохранять историю просмотров аниме и чтения манги."
+          />
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button
+              onClick={() => signIn("google")}
+              className="w-full sm:w-auto rounded-xl bg-accent px-8 py-3.5 font-bold text-white transition hover:bg-accent/90 shadow-glow"
+            >
+              Войти через Google
+            </button>
+            <Link
+              href="/"
+              className="w-full sm:w-auto rounded-xl border border-line bg-surface px-8 py-3.5 font-bold text-paper transition hover:border-accent hover:text-accent text-center"
+            >
+              На главную
+            </Link>
+          </div>
         </div>
+
+        {popularReleases.length > 0 && (
+          <div className="mt-16">
+            <h2 className="mb-6 font-display text-xl font-bold text-paper">Популярно сейчас</h2>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+              {popularReleases.map((fav) => (
+                <PosterCard
+                  key={fav.id}
+                  href={`/anime/${fav.alias}`}
+                  title={AnimeService.displayName(fav)}
+                  imageSrc={AnimeService.posterUrl(fav.poster?.src)}
+                  badge="Популярно"
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }

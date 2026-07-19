@@ -40,6 +40,7 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
   const [skipEnding, setSkipEnding] = useState(false);
 
   const [error, setError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Format time (e.g. 01:23 or 1:02:23)
   const formatTime = (timeInSeconds: number) => {
@@ -315,7 +316,19 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
               onEnded={handleVideoEnd}
               onPlay={() => setPlaying(true)}
               onPause={() => setPlaying(false)}
+              onWaiting={() => setIsLoading(true)}
+              onPlaying={() => setIsLoading(false)}
+              onCanPlay={() => setIsLoading(false)}
+              onLoadStart={() => setIsLoading(true)}
+              onLoadedData={() => setIsLoading(false)}
             />
+          )}
+
+          {/* Loading Spinner */}
+          {isLoading && !error && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 pointer-events-none">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-accent border-t-transparent"></div>
+            </div>
           )}
 
           {/* Controls Overlay */}

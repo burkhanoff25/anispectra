@@ -30,8 +30,20 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
   const title = MangaService.mangaTitle(manga);
   const img = MangaService.coverUrl(manga);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    "name": title,
+    "description": `Читать мангу "${title}" онлайн на русском бесплатно на Anispectra.`,
+    "image": img || "",
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="grid gap-8 md:grid-cols-[220px_1fr]">
         <div className="relative hidden aspect-[2/3] overflow-hidden rounded-2xl border border-line shadow-glow md:block">
           {img && <Image src={img} alt={title} fill className="object-cover" />}

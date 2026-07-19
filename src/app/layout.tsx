@@ -4,6 +4,8 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Providers from "@/components/Providers";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const display = Unbounded({
   subsets: ["latin", "cyrillic"],
@@ -24,14 +26,19 @@ export const metadata: Metadata = {
   },
   description:
     "Anispectra: смотрите аниме онлайн и читайте мангу бесплатно. Свежие релизы, удобный плеер, история просмотра.",
-  metadataBase: new URL("https://anispectra.vercel.app"),
+  metadataBase: new URL("https://anispectra-sigma.vercel.app"),
+  alternates: {
+    canonical: "./",
+  },
   openGraph: {
     siteName: "Anispectra",
     type: "website",
     locale: "ru_RU",
+    images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
+    images: ["/og-image.png"],
   }
 };
 
@@ -44,6 +51,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="flex-1">{children}</main>
           <Footer />
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
