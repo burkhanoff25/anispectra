@@ -2,18 +2,20 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 function createPrismaClient() {
-  const url = process.env.DATABASE_URL ?? "file:./dev.db";
-  
-  let cleanUrl = url;
+  let url = process.env.DATABASE_URL ?? "file:./dev.db";
   let authToken: string | undefined = undefined;
-  
-  if (url.includes("?authToken=")) {
+
+  // Self-correct if the user pasted only the Turso JWT token into DATABASE_URL
+  if (url.startsWith("ey") && url.includes(".")) {
+    authToken = url;
+    url = "libsql://anispectra-burkhanoff25.aws-ap-northeast-1.turso.io";
+  } else if (url.includes("?authToken=")) {
     const parts = url.split("?authToken=");
-    cleanUrl = parts[0];
+    url = parts[0];
     authToken = parts[1];
   }
-  
-  const adapter = new PrismaLibSql({ url: cleanUrl, authToken });
+
+  const adapter = new PrismaLibSql({ url, authToken });
   return new PrismaClient({ adapter });
 }
 
