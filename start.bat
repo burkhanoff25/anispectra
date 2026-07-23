@@ -15,7 +15,13 @@ if "%choice%"=="1" (
     cmd /c npm run dev
 ) else if "%choice%"=="2" (
     echo Python Browser Agent ishga tushmoqda...
-    python scratch/browser_agent.py
+    if exist "venv\Scripts\python.exe" (
+        venv\Scripts\python.exe scratch/browser_agent.py
+    ) else if exist "C:\Program Files\Python312\python.exe" (
+        "C:\Program Files\Python312\python.exe" scratch/browser_agent.py
+    ) else (
+        python scratch/browser_agent.py
+    )
 ) else (
     echo Chiqildi.
 )
