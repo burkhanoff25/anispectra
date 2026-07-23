@@ -27,6 +27,7 @@ export default function PosterCard({
             fill
             sizes="170px"
             className="object-cover transition duration-500 group-hover:scale-105"
+            referrerPolicy="no-referrer"
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-panel2 px-2 text-center text-xs text-mist">

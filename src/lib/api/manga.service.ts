@@ -14,7 +14,8 @@ export class MangaService {
   static coverUrl(m: MangaDexManga, size: 256 | 512 = 512): string | null {
     const file = this.coverFileName(m);
     if (!file) return null;
-    return `https://uploads.mangadex.org/covers/${m.id}/${file}.${size}.jpg`;
+    const rawUrl = `https://uploads.mangadex.org/covers/${m.id}/${file}.${size}.jpg`;
+    return `/api/proxy/image?url=${encodeURIComponent(rawUrl)}`;
   }
 
   static mangaTitle(m: MangaDexManga): string {
@@ -77,6 +78,9 @@ export class MangaService {
 
     if (!data || !data.chapter) return [];
 
-    return data.chapter.data.map((file) => `${data.baseUrl}/data/${data.chapter.hash}/${file}`);
+    return data.chapter.data.map((file) => {
+      const rawUrl = `${data.baseUrl}/data/${data.chapter.hash}/${file}`;
+      return `/api/proxy/image?url=${encodeURIComponent(rawUrl)}`;
+    });
   }
 }
