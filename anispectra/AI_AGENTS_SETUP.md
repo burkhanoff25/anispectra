@@ -354,6 +354,9 @@ SOZLAMALAR:
 3. **API kalitlar** kerak: Anthropic API key (bepul emas)
 4. **Docker** kerak OpenHands uchun
 5. **4GB+ RAM** kerak barcha agentlar birgalikda ishlashi uchun
+   - Bu sotib olinadigan narsa emas — kompyuteringizda allaqachon bor
+   - Tekshirish: **Windows** → `Ctrl+Shift+Esc` → Performance → Memory | **Mac** → `Apple menu` → About This Mac | **Linux** → `free -h`
+   - 4GB dan kam bo'lsa — faqat bitta agentni ishga tushiring
 
 ---
 
