@@ -1,15 +1,17 @@
-import Hero from "@/components/Hero";
 import ShelfRow from "@/components/ShelfRow";
 import PosterCard from "@/components/PosterCard";
 import FilmDivider from "@/components/FilmDivider";
-import EmptyState from "@/components/EmptyState";
 import HeroShorts from "@/components/HeroShorts";
 import SupportProject from "@/components/SupportProject";
+import AdBanner from "@/components/AdBanner";
+import YoutubeBanner from "@/components/YoutubeBanner";
+import BannerSlider from "@/components/BannerSlider";
+import AnimeHeroSlide from "@/components/AnimeHeroSlide";
 import { AnimeService } from "@/lib/api/anime.service";
 import { MangaService } from "@/lib/api/manga.service";
 import { getYoutubeShorts } from "@/lib/youtube";
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export default async function HomePage() {
   const [releases, manga, shorts] = await Promise.all([
@@ -18,20 +20,22 @@ export default async function HomePage() {
     getYoutubeShorts().catch(() => [])
   ]);
 
-  const heroRelease = releases[0];
+  const featuredAnimes = releases.slice(0, 5);
 
   return (
-    <div>
+    <div className="pt-4">
       <h1 className="sr-only">Anispectra — смотреть аниме и читать мангу онлайн бесплатно</h1>
-      {heroRelease ? (
-        <Hero release={heroRelease} />
-      ) : (
-        <EmptyState
-          title="Не удалось загрузить свежие релизы"
-          hint="AniLiberty временно недоступен. Загляните чуть позже."
-        />
-      )}
-      
+
+      {/* Combined Featured Animes and Ad Banners Slider */}
+      <BannerSlider className="h-[400px] md:h-[450px]">
+        {featuredAnimes.map(anime => (
+          <AnimeHeroSlide key={anime.id} anime={anime} />
+        ))}
+        <AdBanner />
+        <YoutubeBanner />
+        <SupportProject />
+      </BannerSlider>
+
       {shorts && shorts.length > 0 && <HeroShorts shorts={shorts} />}
 
       <FilmDivider />
@@ -66,7 +70,6 @@ export default async function HomePage() {
         </ShelfRow>
       )}
 
-      <SupportProject />
     </div>
   );
 }

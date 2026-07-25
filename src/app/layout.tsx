@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Unbounded, Manrope } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import ConditionalFooter from "@/components/ConditionalFooter";
 import Providers from "@/components/Providers";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -28,9 +28,6 @@ export const metadata: Metadata = {
   description:
     "Anispectra: смотрите аниме онлайн и читайте мангу бесплатно. Свежие релизы, удобный плеер, история просмотра.",
   metadataBase: new URL("https://anispectra-sigma.vercel.app"),
-  alternates: {
-    canonical: "./",
-  },
   openGraph: {
     siteName: "Anispectra",
     type: "website",
@@ -50,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
-          <Footer />
+          <ConditionalFooter />
         </Providers>
         <Analytics />
         <SpeedInsights />

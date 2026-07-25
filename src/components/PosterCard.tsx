@@ -17,9 +17,9 @@ export default function PosterCard({
   return (
     <Link
       href={href}
-      className="group w-[150px] shrink-0 snap-start sm:w-[170px] focus-visible:outline-none"
+      className="group w-[150px] shrink-0 snap-start sm:w-[170px] focus-visible:outline-none flex flex-col h-full"
     >
-      <div className="relative aspect-[2/3] overflow-hidden rounded-xl border border-line bg-panel shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-glow">
+      <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-line bg-panel shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-glow shrink-0">
         {imageSrc ? (
           <Image
             src={imageSrc}
@@ -41,9 +41,9 @@ export default function PosterCard({
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/0 to-ink/0 opacity-0 transition group-hover:opacity-100" />
       </div>
-      <div className="mt-2">
-        <p className="line-clamp-2 text-sm font-semibold text-paper">{title}</p>
-        {subtitle && <p className="mt-0.5 text-xs text-mist">{subtitle}</p>}
+      <div className="mt-2 flex flex-col justify-start min-h-[3.5rem] flex-grow">
+        <p className="line-clamp-2 text-sm font-semibold text-paper leading-tight">{title}</p>
+        {subtitle && <p className="mt-1 line-clamp-1 text-xs text-mist">{subtitle}</p>}
       </div>
     </Link>
   );

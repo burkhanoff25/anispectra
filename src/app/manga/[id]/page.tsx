@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     description: `Читайте ${title} онлайн на русском на Anispectra.`,
     openGraph: {
       title,
+      description: `Читайте ${title} онлайн на русском на Anispectra.`,
       images: img ? [img] : [],
     }
   };
@@ -37,6 +38,8 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
     "name": title,
     "description": `Читать мангу "${title}" онлайн на русском бесплатно на Anispectra.`,
     "image": img || "",
+    "genre": manga.attributes.tags ? manga.attributes.tags.map(t => t.attributes.name.en || t.attributes.name.ru || "Манга") : undefined,
+    "datePublished": manga.attributes.year ? String(manga.attributes.year) : undefined,
   };
 
   return (

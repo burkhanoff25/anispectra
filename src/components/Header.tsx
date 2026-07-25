@@ -7,6 +7,7 @@ const NAV = [
   { href: "/manga", label: "Манга" },
   { href: "/schedule", label: "Расписание" },
   { href: "/shorts", label: "Shorts" },
+  { href: "/watch-party", label: "Комната" },
 ];
 
 export default function Header() {

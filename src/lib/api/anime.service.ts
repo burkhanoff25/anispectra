@@ -55,12 +55,8 @@ export class AnimeService {
 
   static async searchReleases(query: string): Promise<AniLibertyRelease[]> {
     if (!query.trim()) return [];
-    const data = await HttpClient.fetch<{ releases: AniLibertyRelease[] }>(
-      `${this.BASE}/app/search/releases?query=${encodeURIComponent(query)}`,
-      { next: { revalidate: 300 } }
-    );
-    if (Array.isArray(data)) return data as unknown as AniLibertyRelease[];
-    return data?.releases ?? [];
+    const data = await this.getCatalog({ query, perPage: 24 });
+    return data.items || [];
   }
 
   static async getReleaseByAlias(alias: string): Promise<AniLibertyRelease | null> {

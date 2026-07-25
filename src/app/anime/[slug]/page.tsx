@@ -1,11 +1,16 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import EpisodePlayer from "@/components/EpisodePlayer";
+import dynamic from "next/dynamic";
 import FilmDivider from "@/components/FilmDivider";
 import { AnimeService } from "@/lib/api/anime.service";
 import type { Metadata } from "next";
 import FavoriteButton from "@/components/FavoriteButton";
 import Link from "next/link";
+
+const EpisodePlayer = dynamic(() => import("@/components/EpisodePlayer"), {
+  ssr: false,
+  loading: () => <div className="h-64 w-full animate-pulse bg-panel rounded-2xl border border-line"></div>
+});
 
 export const revalidate = 300;
 

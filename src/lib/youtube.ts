@@ -37,7 +37,7 @@ export async function getYoutubeShorts(): Promise<YoutubeShort[]> {
     // 1. Get the uploads playlist ID for the channel
     const channelsRes = await fetch(
       `${BASE_URL}/channels?part=contentDetails&id=${YOUTUBE_CHANNEL_ID}&key=${YOUTUBE_API_KEY}`,
-      { next: { revalidate: 3600 } }
+      { next: { revalidate: 60 } }
     );
     const channelsData = await channelsRes.json();
     if (!channelsData.items || channelsData.items.length === 0) return [];
@@ -47,7 +47,7 @@ export async function getYoutubeShorts(): Promise<YoutubeShort[]> {
     // 2. Fetch the latest 50 videos from the uploads playlist
     const playlistRes = await fetch(
       `${BASE_URL}/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=50&key=${YOUTUBE_API_KEY}`,
-      { next: { revalidate: 3600 } }
+      { next: { revalidate: 60 } }
     );
     const playlistData = await playlistRes.json();
     if (!playlistData.items || playlistData.items.length === 0) return [];
@@ -57,7 +57,7 @@ export async function getYoutubeShorts(): Promise<YoutubeShort[]> {
     // 3. Fetch video details to get duration and view count
     const videosRes = await fetch(
       `${BASE_URL}/videos?part=contentDetails,statistics,snippet&id=${videoIds}&key=${YOUTUBE_API_KEY}`,
-      { next: { revalidate: 3600 } }
+      { next: { revalidate: 60 } }
     );
     const videosData = await videosRes.json();
     if (!videosData.items) return [];
