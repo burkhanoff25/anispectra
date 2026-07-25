@@ -54,12 +54,12 @@ export default function ProfileClient({
             hint="Войдите в свой аккаунт с помощью Google, чтобы сохранять историю просмотров аниме и чтения манги."
           />
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button
-              onClick={() => signIn("google")}
-              className="w-full sm:w-auto rounded-xl bg-accent px-8 py-3.5 font-bold text-white transition hover:bg-accent/90 shadow-glow"
+            <Link
+              href="/auth/login"
+              className="w-full sm:w-auto rounded-xl bg-accent px-8 py-3.5 text-center font-bold text-white transition hover:bg-accent/90 shadow-glow"
             >
-              Войти через Google
-            </button>
+              Войти в аккаунт
+            </Link>
             <Link
               href="/"
               className="w-full sm:w-auto rounded-xl border border-line bg-surface px-8 py-3.5 font-bold text-paper transition hover:border-accent hover:text-accent text-center"
@@ -156,12 +156,12 @@ export default function ProfileClient({
               Настройки
             </button>
             {!googleSession && (
-              <button
-                onClick={() => signIn("google")}
+              <Link
+                href="/auth/login"
                 className="flex items-center gap-2 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm font-bold text-blue-400 transition hover:bg-blue-500/20"
               >
-                Continue with Google
-              </button>
+                Войти в аккаунт
+              </Link>
             )}
           </div>
         </div>
