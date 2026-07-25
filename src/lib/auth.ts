@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import DiscordProvider from "next-auth/providers/discord";
 import GithubProvider from "next-auth/providers/github";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/server/db/client";
 import type { Adapter } from "next-auth/adapters";
@@ -25,11 +26,85 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
     }),
+    CredentialsProvider({
+      name: "OTP",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        otp: { label: "Code", type: "text" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.otp) {
+          throw new Error("Необходимо указать email и код.");
+        }
+
+        const { email, otp } = credentials;
+
+        // Check if token exists and matches
+        const tokenRecord = await prisma.verificationToken.findFirst({
+          where: {
+            identifier: email,
+            token: otp,
+          },
+        });
+
+        if (!tokenRecord) {
+          throw new Error("Неверный код.");
+        }
+
+        if (new Date() > tokenRecord.expires) {
+          // Token expired, delete it
+          await prisma.verificationToken.delete({
+            where: {
+              identifier_token: {
+                identifier: email,
+                token: otp,
+              },
+            },
+          });
+          throw new Error("Код истёк.");
+        }
+
+        // Token is valid. Delete it so it can't be reused.
+        await prisma.verificationToken.delete({
+          where: {
+            identifier_token: {
+              identifier: email,
+              token: otp,
+            },
+          },
+        });
+
+        // Find or create user
+        let user = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              email,
+              name: email.split("@")[0], // Default name from email
+            },
+          });
+        }
+
+        return user;
+      },
+    }),
   ],
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
-    session: async ({ session, user }) => {
-      if (session?.user) {
-        session.user.id = user.id;
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    session: async ({ session, token }) => {
+      if (session?.user && token?.id) {
+        session.user.id = token.id as string;
       }
       return session;
     },
