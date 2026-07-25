@@ -41,19 +41,35 @@ export default function SupportPage() {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !message) return;
     
     setLoading(true);
-    // Simulate API request
-    setTimeout(() => {
+    
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email, message })
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+        setName("");
+        setEmail("");
+        setMessage("");
+      } else {
+        alert("Произошла ошибка при отправке сообщения. Попробуйте позже.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Произошла ошибка при отправке сообщения. Попробуйте позже.");
+    } finally {
       setLoading(false);
-      setSubmitted(true);
-      setName("");
-      setEmail("");
-      setMessage("");
-    }, 1200);
+    }
   };
 
   return (
