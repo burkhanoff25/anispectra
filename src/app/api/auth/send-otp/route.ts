@@ -11,6 +11,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Введите корректный email' }, { status: 400 });
     }
 
+    // Check rate limit: max 3 attempts per 24 hours
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const attemptsCount = await prisma.otpAttempt.count({
+      where: {
+        email,
+        createdAt: {
+          gte: oneDayAgo,
+        },
+      },
+    });
+
+    if (attemptsCount >= 3) {
+      return NextResponse.json({ 
+        error: "Вы исчерпали лимит (3 раза в день). Пожалуйста, попробуйте завтра." 
+      }, { status: 429 });
+    }
+
+    // Record this attempt
+    await prisma.otpAttempt.create({
+      data: { email }
+    });
+
     // Generate a 5-digit code
     const code = Math.floor(10000 + Math.random() * 90000).toString();
 
