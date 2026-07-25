@@ -38,8 +38,8 @@ export default function OtpPage() {
       }
       
       setStep(2);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Произошла ошибка");
     } finally {
       setLoading(false);
     }
@@ -70,8 +70,8 @@ export default function OtpPage() {
         router.push("/profile");
         router.refresh();
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Произошла ошибка");
     } finally {
       setLoading(false);
     }

@@ -120,7 +120,7 @@ export default function SupportPage() {
               <CheckCircle2 className="h-16 w-16 text-teal mb-4" />
               <h3 className="text-lg font-bold text-paper">Сообщение отправлено!</h3>
               <p className="mt-2 text-sm text-mist max-w-md">
-                Спасибо за обращение. Мы получили ваше сообщение. Вы сможете найти ответ поддержки в своем Профиле в разделе "Мои обращения".
+                Спасибо за обращение. Мы получили ваше сообщение. Вы сможете найти ответ поддержки в своем Профиле в разделе &quot;Мои обращения&quot;.
               </p>
               <button 
                 onClick={() => setSubmitted(false)}
@@ -183,35 +183,7 @@ export default function SupportPage() {
           )}
         </div>
 
-        {/* Sidebar Info & FAQ */}ea 
-                  rows={4}
-                  required
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Опишите вашу проблему или предложение..."
-                  className="w-full rounded-xl border border-line bg-base px-4 py-3 text-paper focus:border-accent focus:outline-none transition resize-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3.5 font-bold text-white transition hover:bg-accent/90 disabled:opacity-50"
-              >
-                {loading ? (
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                ) : (
-                  <>
-                    <Send size={16} />
-                    Отправить сообщение
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-
-        {/* Sidebar Info & FAQ */}
+        {/* Sidebar Info & FAQ */}        {/* Sidebar Info & FAQ */}
         <div className="lg:col-span-5 flex flex-col gap-6">
           {/* Quick contacts */}
           <div className="rounded-3xl border border-line bg-panel p-6 shadow-glow">
