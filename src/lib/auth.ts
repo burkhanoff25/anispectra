@@ -17,14 +17,17 @@ export const authOptions: NextAuthOptions = {
       httpOptions: {
         timeout: 10000,
       },
+      allowDangerousEmailAccountLinking: true,
     }),
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID!,
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
       name: "OTP",
