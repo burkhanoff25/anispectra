@@ -9,7 +9,7 @@ import type { AnimeHistory, MangaHistory, AnimeFavorite, MangaFavorite } from "@
 import PosterCard from "@/components/PosterCard";
 import { AnimeService } from "@/lib/api/anime.service";
 import EmptyState from "@/components/EmptyState";
-import { LogOut, Settings, PlayCircle, BookOpen } from "lucide-react";
+import { LogOut, Settings, PlayCircle, BookOpen, MessageSquare } from "lucide-react";
 import Link from "next/link";
 
 interface ProfileClientProps {
@@ -21,6 +21,7 @@ interface ProfileClientProps {
   popularReleases?: AniLibertyRelease[];
   dbAnimeFavorites: AnimeFavorite[];
   dbMangaFavorites: MangaFavorite[];
+  supportTickets?: any[];
 }
 
 export default function ProfileClient({
@@ -32,8 +33,9 @@ export default function ProfileClient({
   popularReleases = [],
   dbAnimeFavorites = [],
   dbMangaFavorites = [],
+  supportTickets = [],
 }: ProfileClientProps) {
-  const [activeTab, setActiveTab] = useState<"anime" | "manga">("anime");
+  const [activeTab, setActiveTab] = useState<"anime" | "manga" | "support">("anime");
 
   const handleLogout = () => {
     if (googleSession) {
@@ -191,6 +193,17 @@ export default function ProfileClient({
           <BookOpen className="h-5 w-5" />
           Манга
         </button>
+        <button
+          onClick={() => setActiveTab("support")}
+          className={`flex items-center gap-2 rounded-xl px-5 py-2.5 font-bold transition ${
+            activeTab === "support"
+              ? "bg-accent/10 text-accent"
+              : "text-mist hover:bg-panel hover:text-paper"
+          }`}
+        >
+          <MessageSquare className="h-5 w-5" />
+          Мои обращения
+        </button>
       </div>
 
       {/* Anime Tab Content */}
@@ -303,6 +316,71 @@ export default function ProfileClient({
               <EmptyState
                 title="Вы ещё ничего не читали"
                 hint="История чтения появится после открытия первой главы."
+              />
+            )}
+          </section>
+        </div>
+      )}
+      {/* Support Tab Content */}
+      {activeTab === "support" && (
+        <div className="space-y-8">
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display text-2xl font-bold text-paper">Мои обращения в поддержку</h2>
+              <Link 
+                href="/support"
+                className="rounded-xl bg-accent/10 px-4 py-2 text-sm font-bold text-accent transition hover:bg-accent/20"
+              >
+                Создать новое
+              </Link>
+            </div>
+            
+            {supportTickets && supportTickets.length > 0 ? (
+              <div className="space-y-4">
+                {supportTickets.map((ticket) => (
+                  <div key={ticket.id} className="rounded-2xl border border-line bg-panel p-5 shadow-glow">
+                    <div className="flex items-center justify-between mb-4 border-b border-line pb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-medium text-mist">ID: {ticket.id}</span>
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+                          ticket.status === 'REPLIED' ? 'bg-teal/10 text-teal' : 'bg-orange-500/10 text-orange-400'
+                        }`}>
+                          {ticket.status === 'REPLIED' ? 'Получен ответ' : 'Ожидает ответа'}
+                        </span>
+                      </div>
+                      <span className="text-xs text-mist">
+                        {new Date(ticket.createdAt).toLocaleDateString('ru-RU', { 
+                          day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+                        })}
+                      </span>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <p className="text-sm font-medium text-mist mb-1">Вы написали:</p>
+                      <p className="text-paper whitespace-pre-wrap">{ticket.message}</p>
+                    </div>
+
+                    {ticket.replies && ticket.replies.length > 0 && (
+                      <div className="mt-4 rounded-xl bg-surface p-4 border border-accent/20">
+                        <p className="text-sm font-bold text-accent mb-2 flex items-center gap-2">
+                          <MessageSquare className="h-4 w-4" />
+                          Ответ поддержки:
+                        </p>
+                        <p className="text-paper whitespace-pre-wrap">{ticket.replies[0].message}</p>
+                        <p className="text-[10px] text-mist mt-2 text-right">
+                          {new Date(ticket.replies[0].createdAt).toLocaleDateString('ru-RU', { 
+                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+                          })}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="У вас пока нет обращений"
+                hint="Если у вас есть вопросы или проблемы, напишите нам."
               />
             )}
           </section>

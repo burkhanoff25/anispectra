@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { 
-  Send, HelpCircle, Mail, MessageSquare, ShieldAlert, CheckCircle2, ChevronDown, ChevronUp 
+  Send, HelpCircle, Mail, MessageSquare, ShieldAlert, CheckCircle2, ChevronDown, ChevronUp, AlertCircle
 } from "lucide-react";
+import Link from "next/link";
 
 interface FAQItem {
   q: string;
@@ -17,7 +19,7 @@ const FAQS: FAQItem[] = [
   },
   {
     q: "Как сохраняется моя история просмотра?",
-    a: "Если вы авторизованы через Google, ваша история просмотров аниме и чтения манги автоматически синхронизируется в облаке. История просмотров сохраняется каждые 10 секунд воспроизведения видео.",
+    a: "Если вы авторизованы через Google, ваша история просмотров аниме и манги автоматически синхронизируется в облаке. История просмотров сохраняется каждые 10 секунд воспроизведения видео.",
   },
   {
     q: "Можно ли скачать аниме или мангу на вашем сайте?",
@@ -30,12 +32,20 @@ const FAQS: FAQItem[] = [
 ];
 
 export default function SupportPage() {
+  const { data: session } = useSession();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (session?.user) {
+      setName(session.user.name || "");
+      setEmail(session.user.email || "");
+    }
+  }, [session]);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -58,8 +68,6 @@ export default function SupportPage() {
 
       if (res.ok) {
         setSubmitted(true);
-        setName("");
-        setEmail("");
         setMessage("");
       } else {
         alert("Произошла ошибка при отправке сообщения. Попробуйте позже.");
@@ -92,12 +100,27 @@ export default function SupportPage() {
             Написать сообщение
           </h2>
 
-          {submitted ? (
+          {!session ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <AlertCircle className="h-12 w-12 text-accent mb-4" />
+              <h3 className="text-lg font-bold text-paper mb-2">Требуется авторизация</h3>
+              <p className="text-sm text-mist mb-6">
+                Пожалуйста, войдите в свой аккаунт, чтобы отправить нам сообщение. 
+                Ваши обращения и ответы поддержки будут доступны в вашем профиле.
+              </p>
+              <Link 
+                href="/auth/login"
+                className="rounded-xl bg-accent px-6 py-3 font-bold text-white transition hover:bg-accent/90 shadow-[0_0_20px_rgba(110,86,207,0.4)] hover:shadow-[0_0_25px_rgba(110,86,207,0.6)]"
+              >
+                Войти в аккаунт
+              </Link>
+            </div>
+          ) : submitted ? (
             <div className="flex flex-col items-center justify-center py-10 text-center animate-rise">
               <CheckCircle2 className="h-16 w-16 text-teal mb-4" />
               <h3 className="text-lg font-bold text-paper">Сообщение отправлено!</h3>
               <p className="mt-2 text-sm text-mist max-w-md">
-                Спасибо за обращение. Мы ответим вам на указанный адрес электронной почты в ближайшее время.
+                Спасибо за обращение. Мы получили ваше сообщение. Вы сможете найти ответ поддержки в своем Профиле в разделе "Мои обращения".
               </p>
               <button 
                 onClick={() => setSubmitted(false)}
@@ -113,10 +136,9 @@ export default function SupportPage() {
                 <input 
                   type="text" 
                   required
+                  readOnly
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Иван"
-                  className="w-full rounded-xl border border-line bg-base px-4 py-3 text-paper focus:border-accent focus:outline-none transition"
+                  className="w-full rounded-xl border border-line bg-base px-4 py-3 text-mist cursor-not-allowed opacity-70"
                 />
               </div>
 
@@ -125,16 +147,43 @@ export default function SupportPage() {
                 <input 
                   type="email" 
                   required
+                  readOnly
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your-email@example.com"
-                  className="w-full rounded-xl border border-line bg-base px-4 py-3 text-paper focus:border-accent focus:outline-none transition"
+                  className="w-full rounded-xl border border-line bg-base px-4 py-3 text-mist cursor-not-allowed opacity-70"
                 />
               </div>
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-mist">Сообщение</label>
                 <textarea 
+                  rows={4}
+                  required
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Опишите вашу проблему или предложение..."
+                  className="w-full rounded-xl border border-line bg-base px-4 py-3 text-paper focus:border-accent focus:outline-none transition resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3.5 font-bold text-white transition hover:bg-accent/90 disabled:opacity-50 shadow-[0_0_15px_rgba(110,86,207,0.3)] hover:shadow-[0_0_20px_rgba(110,86,207,0.5)]"
+              >
+                {loading ? (
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                ) : (
+                  <>
+                    <Send size={16} />
+                    Отправить сообщение
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+        </div>
+
+        {/* Sidebar Info & FAQ */}ea 
                   rows={4}
                   required
                   value={message}

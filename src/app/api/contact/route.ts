@@ -1,11 +1,19 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/prisma'; // Assuming default export for prisma
 
 export async function POST(req: Request) {
   try {
-    const { name, email, message } = await req.json();
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+    const { message } = await req.json();
+
+    if (!message) {
+      return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
 
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -16,14 +24,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 
-    const text = `
-📩 <b>Новое сообщение с сайта Anispectra</b>
+    // First create the ticket in the database
+    const ticket = await prisma.supportTicket.create({
+      data: {
+        userId: session.user.id,
+        message: message,
+      }
+    });
 
-👤 <b>Имя:</b> ${name}
-📧 <b>Email:</b> ${email}
+    const text = `
+📩 <b>Новое обращение #${ticket.id}</b>
+
+👤 <b>Пользователь:</b> ${session.user.name || 'Без имени'}
+📧 <b>Email:</b> ${session.user.email}
 
 💬 <b>Сообщение:</b>
 ${message}
+
+<i>Ответьте на это сообщение (Reply), чтобы отправить ответ пользователю.</i>
 `;
 
     const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -44,7 +62,17 @@ ${message}
       return NextResponse.json({ error: 'Failed to send message to Telegram' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
+    const data = await response.json();
+    
+    // Save the telegramMessageId
+    if (data.result && data.result.message_id) {
+      await prisma.supportTicket.update({
+        where: { id: ticket.id },
+        data: { telegramMessageId: data.result.message_id }
+      });
+    }
+
+    return NextResponse.json({ success: true, ticketId: ticket.id });
   } catch (error) {
     console.error('Contact API Error:', error);
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });

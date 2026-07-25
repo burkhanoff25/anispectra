@@ -48,6 +48,7 @@ model User {
   mangaHistory  MangaHistory[]
   animeFavorites AnimeFavorite[]
   mangaFavorites MangaFavorite[]
+  supportTickets SupportTicket[]
 }
 
 model VerificationToken {
@@ -120,4 +121,25 @@ model OtpAttempt {
   id        String   @id @default(cuid())
   email     String
   createdAt DateTime @default(now())
+}
+
+model SupportTicket {
+  id                String         @id @default(cuid())
+  userId            String
+  message           String
+  status            String         @default("OPEN") // OPEN, REPLIED, CLOSED
+  telegramMessageId Int?
+  createdAt         DateTime       @default(now())
+
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replies SupportReply[]
+}
+
+model SupportReply {
+  id        String   @id @default(cuid())
+  ticketId  String
+  message   String
+  createdAt DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 }

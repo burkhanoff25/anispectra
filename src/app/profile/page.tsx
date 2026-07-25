@@ -37,9 +37,10 @@ export default async function ProfilePage() {
   let mangaHistory: MangaHistory[] = [];
   let dbAnimeFavorites: AnimeFavorite[] = [];
   let dbMangaFavorites: MangaFavorite[] = [];
+  let supportTickets: any[] = [];
 
   if (userId || aniLibertyId) {
-    const [aHist, mHist, aFavs, mFavs] = await Promise.all([
+    const [aHist, mHist, aFavs, mFavs, tickets] = await Promise.all([
       HistoryService.getAnimeHistory({ userId, aniLibertyId }),
       HistoryService.getMangaHistory({ userId, aniLibertyId }),
       prisma.animeFavorite.findMany({
@@ -60,11 +61,17 @@ export default async function ProfilePage() {
         },
         orderBy: { timestamp: "desc" },
       }),
+      userId ? prisma.supportTicket.findMany({
+        where: { userId },
+        include: { replies: true },
+        orderBy: { createdAt: "desc" }
+      }) : Promise.resolve([])
     ]);
     animeHistory = aHist;
     mangaHistory = mHist;
     dbAnimeFavorites = aFavs;
     dbMangaFavorites = mFavs;
+    supportTickets = tickets;
   }
 
   return (
@@ -77,6 +84,7 @@ export default async function ProfilePage() {
       popularReleases={popularReleases}
       dbAnimeFavorites={dbAnimeFavorites}
       dbMangaFavorites={dbMangaFavorites}
+      supportTickets={supportTickets}
     />
   );
 }
