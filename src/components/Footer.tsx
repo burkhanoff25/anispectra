@@ -23,8 +23,8 @@ export default function Footer() {
             <div className="flex flex-col gap-2.5">
               <span className="font-semibold text-paper uppercase tracking-wider text-xs">Помощь</span>
               <Link href="/support" className="text-mist hover:text-accent transition">Поддержка (DMCA)</Link>
-              <a href="https://t.me/anispectra" target="_blank" rel="noreferrer" className="text-mist hover:text-accent transition">Telegram</a>
-              <a href="mailto:support@anispectra.com" className="text-mist hover:text-accent transition">Email</a>
+              <a href="https://t.me/burkhanoff_nurbek" target="_blank" rel="noreferrer" className="text-mist hover:text-accent transition">Telegram</a>
+              <a href="mailto:nburkhanoff1@gmail.com" className="text-mist hover:text-accent transition">Email</a>
             </div>
           </div>
         </div>

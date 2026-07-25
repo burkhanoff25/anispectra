@@ -155,14 +155,14 @@ export default function SupportPage() {
             </h3>
             <div className="flex flex-col gap-3">
               <a 
-                href="mailto:support@anispectra.com" 
+                href="mailto:nburkhanoff1@gmail.com" 
                 className="flex items-center gap-3 rounded-xl bg-surface p-3 text-sm text-mist hover:text-paper border border-transparent hover:border-line transition"
               >
                 <Mail className="text-accent h-5 w-5" />
-                <span>support@anispectra.com</span>
+                <span>nburkhanoff1@gmail.com</span>
               </a>
               <a 
-                href="https://t.me/anispectra" 
+                href="https://t.me/burkhanoff_nurbek" 
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-3 rounded-xl bg-surface p-3 text-sm text-mist hover:text-paper border border-transparent hover:border-line transition"
@@ -182,7 +182,7 @@ export default function SupportPage() {
             <p className="text-xs leading-relaxed text-mist">
               Anispectra осуществляет поиск и индексирование открытых ссылок, транслируя медиафайлы с сторонних платформ. 
               Мы не загружаем и не храним материалы на своих серверах. По любым вопросам удаления обратитесь на 
-              <a href="mailto:dmca@anispectra.com" className="text-accent hover:underline ml-1">dmca@anispectra.com</a>.
+              <a href="mailto:nburkhanoff1@gmail.com" className="text-accent hover:underline ml-1">nburkhanoff1@gmail.com</a>.
             </p>
           </div>
         </div>
