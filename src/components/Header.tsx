@@ -6,6 +6,7 @@ const NAV = [
   { href: "/anime", label: "Аниме" },
   { href: "/manga", label: "Манга" },
   { href: "/schedule", label: "Расписание" },
+  { href: "/shorts", label: "Shorts" },
 ];
 
 export default function Header() {

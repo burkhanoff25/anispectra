@@ -7,7 +7,7 @@ import { AnimeService } from "@/lib/api/anime.service";
 import type { Metadata } from "next";
 import { prisma } from "@/server/db/client";
 
-import { AnimeHistory, MangaHistory } from "@prisma/client";
+import { AnimeHistory, MangaHistory, AnimeFavorite, MangaFavorite } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "Профиль",
@@ -35,8 +35,8 @@ export default async function ProfilePage() {
 
   let animeHistory: AnimeHistory[] = [];
   let mangaHistory: MangaHistory[] = [];
-  let dbAnimeFavorites: any[] = [];
-  let dbMangaFavorites: any[] = [];
+  let dbAnimeFavorites: AnimeFavorite[] = [];
+  let dbMangaFavorites: MangaFavorite[] = [];
 
   if (userId || aniLibertyId) {
     const [aHist, mHist, aFavs, mFavs] = await Promise.all([

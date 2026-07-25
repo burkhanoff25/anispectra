@@ -19,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Dynamic Anime pages
-  let animeUrls: any[] = [];
+  let animeUrls: MetadataRoute.Sitemap = [];
   try {
     const releases = await AnimeService.getLatestReleases(100);
     animeUrls = releases.map((r) => ({
@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Dynamic Manga pages
-  let mangaUrls: any[] = [];
+  let mangaUrls: MetadataRoute.Sitemap = [];
   try {
     const manga = await MangaService.getPopularManga(100).catch(() => []);
     mangaUrls = manga.map((m) => ({

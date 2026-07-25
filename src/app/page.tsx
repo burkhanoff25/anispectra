@@ -3,15 +3,19 @@ import ShelfRow from "@/components/ShelfRow";
 import PosterCard from "@/components/PosterCard";
 import FilmDivider from "@/components/FilmDivider";
 import EmptyState from "@/components/EmptyState";
+import HeroShorts from "@/components/HeroShorts";
+import SupportProject from "@/components/SupportProject";
 import { AnimeService } from "@/lib/api/anime.service";
 import { MangaService } from "@/lib/api/manga.service";
+import { getYoutubeShorts } from "@/lib/youtube";
 
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [releases, manga] = await Promise.all([
+  const [releases, manga, shorts] = await Promise.all([
     AnimeService.getLatestReleases(20),
-    MangaService.getPopularManga(16).catch(() => [])
+    MangaService.getPopularManga(16).catch(() => []),
+    getYoutubeShorts().catch(() => [])
   ]);
 
   const heroRelease = releases[0];
@@ -27,6 +31,8 @@ export default async function HomePage() {
           hint="AniLiberty временно недоступен. Загляните чуть позже."
         />
       )}
+      
+      {shorts && shorts.length > 0 && <HeroShorts shorts={shorts} />}
 
       <FilmDivider />
 
@@ -59,6 +65,8 @@ export default async function HomePage() {
           ))}
         </ShelfRow>
       )}
+
+      <SupportProject />
     </div>
   );
 }

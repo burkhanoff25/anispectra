@@ -19,22 +19,22 @@ load_dotenv(dotenv_path="../.env")
 load_dotenv(dotenv_path="./.env")
 load_dotenv()
 
-# Model presets for each provider
+# Model presets for each provider (using OpenRouter endpoints)
 MODEL_PRESETS = {
     "Claude (Anthropic)": [
-        "claude-3-5-sonnet-20241022",
-        "claude-3-5-haiku-20241022",
-        "claude-3-opus-20240229"
+        "anthropic/claude-3.5-sonnet",
+        "anthropic/claude-3.5-haiku",
+        "anthropic/claude-3-opus"
     ],
     "ChatGPT (OpenAI)": [
-        "gpt-4o",
-        "gpt-4o-mini",
-        "gpt-4-turbo"
+        "openai/gpt-4o",
+        "openai/gpt-4o-mini",
+        "openai/gpt-4-turbo"
     ],
     "Gemini (Google)": [
-        "gemini-1.5-pro",
-        "gemini-1.5-flash",
-        "gemini-2.0-flash-exp"
+        "google/gemini-1.5-pro",
+        "google/gemini-1.5-flash",
+        "google/gemini-2.0-flash-exp:free"
     ]
 }
 
@@ -44,31 +44,19 @@ def check_env_status():
     openai_key = os.getenv("OPENAI_API_KEY", "").strip()
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("GOOGLE_API_KEY", "").strip()
 
+    openrouter_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+
     status_report = []
     status_report.append("=========================================")
     status_report.append("🔍 API KEYS & ENV HOLATI TEKSHIRUVI")
     status_report.append("=========================================\n")
 
-    if anthropic_key:
-        masked = anthropic_key[:8] + "..." + anthropic_key[-4:] if len(anthropic_key) > 12 else "mavjud"
-        status_report.append(f"🟢 Anthropic (Claude): MAVJUD ({masked})")
-        status_report.append(f"   ► Tavsiya etilgan modellar: {', '.join(MODEL_PRESETS['Claude (Anthropic)'])}\n")
+    if openrouter_key:
+        masked = openrouter_key[:8] + "..." + openrouter_key[-4:] if len(openrouter_key) > 12 else "mavjud"
+        status_report.append(f"🟢 OpenRouter (Universal API): MAVJUD ({masked})")
+        status_report.append("   ► Ushbu kalit orqali Claude, ChatGPT va Gemini ishlayveradi!\n")
     else:
-        status_report.append("🔴 Anthropic (Claude): TOPILMADI (.env da ANTHROPIC_API_KEY o'rnating)\n")
-
-    if openai_key:
-        masked = openai_key[:8] + "..." + openai_key[-4:] if len(openai_key) > 12 else "mavjud"
-        status_report.append(f"🟢 OpenAI (ChatGPT): MAVJUD ({masked})")
-        status_report.append(f"   ► Tavsiya etilgan modellar: {', '.join(MODEL_PRESETS['ChatGPT (OpenAI)'])}\n")
-    else:
-        status_report.append("🔴 OpenAI (ChatGPT): TOPILMADI (.env da OPENAI_API_KEY o'rnating)\n")
-
-    if gemini_key:
-        masked = gemini_key[:8] + "..." + gemini_key[-4:] if len(gemini_key) > 12 else "mavjud"
-        status_report.append(f"🟢 Google (Gemini): MAVJUD ({masked})")
-        status_report.append(f"   ► Tavsiya etilgan modellar: {', '.join(MODEL_PRESETS['Gemini (Google)'])}\n")
-    else:
-        status_report.append("🔴 Google (Gemini): TOPILMADI (.env da GEMINI_API_KEY o'rnating)\n")
+        status_report.append("🔴 OpenRouter API kaliti TOPILMADI (.env ga qo'shing)\n")
 
     status_report.append("=========================================")
     status_report.append("💡 Ishlatmoqchi bo'lgan provayder tugmasini bosib topshiriqni yuboring.")
@@ -84,50 +72,23 @@ async def run_browser_agent(task_text: str, provider: str, custom_api_key: str, 
     except ImportError as e:
         return f"❌ Xatolik: browser-use topilmadi ({str(e)})"
 
-    # Set up LLM Provider
-    llm = None
-    
-    if provider == "Claude (Anthropic)":
-        api_key = custom_api_key.strip() or os.getenv("ANTHROPIC_API_KEY", "").strip()
-        if not api_key:
-            return "❌ Xatolik: ANTHROPIC_API_KEY topilmadi! API key kiriting yoki .env ga qo'shing."
-        os.environ["ANTHROPIC_API_KEY"] = api_key
-        
-        try:
-            from langchain_anthropic import ChatAnthropic
-            selected_model = model_name.strip() if model_name.strip() else "claude-3-5-sonnet-20241022"
-            llm = ChatAnthropic(model=selected_model, api_key=api_key)
-            object.__setattr__(llm, "provider", "anthropic")
-        except ImportError:
-            return "❌ Xatolik: langchain-anthropic o'rnatilmagan"
+    # Set up LLM Provider using OpenRouter
+    openrouter_key = custom_api_key.strip() or os.getenv("OPENROUTER_API_KEY", "").strip()
+    if not openrouter_key:
+        return "❌ Xatolik: OPENROUTER_API_KEY topilmadi! API key kiriting yoki .env ga qo'shing."
 
-    elif provider == "ChatGPT (OpenAI)":
-        api_key = custom_api_key.strip() or os.getenv("OPENAI_API_KEY", "").strip()
-        if not api_key:
-            return "❌ Xatolik: OPENAI_API_KEY topilmadi! API key kiriting yoki .env ga qo'shing."
-        os.environ["OPENAI_API_KEY"] = api_key
+    try:
+        from browser_use import ChatOpenAI # type: ignore
+        selected_model = model_name.strip() if model_name.strip() else "openai/gpt-4o-mini"
         
-        try:
-            from langchain_openai import ChatOpenAI
-            selected_model = model_name.strip() if model_name.strip() else "gpt-4o"
-            llm = ChatOpenAI(model=selected_model, api_key=api_key)
-            object.__setattr__(llm, "provider", "openai")
-        except ImportError:
-            return "❌ Xatolik: langchain-openai o'rnatilmagan"
-
-    elif provider == "Gemini (Google)":
-        api_key = custom_api_key.strip() or os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("GOOGLE_API_KEY", "").strip()
-        if not api_key:
-            return "❌ Xatolik: GEMINI_API_KEY / GOOGLE_API_KEY topilmadi! API key kiriting yoki .env ga qo'shing."
-        os.environ["GOOGLE_API_KEY"] = api_key
-        
-        try:
-            from langchain_google_genai import ChatGoogleGenerativeAI
-            selected_model = model_name.strip() if model_name.strip() else "gemini-1.5-pro"
-            llm = ChatGoogleGenerativeAI(model=selected_model, google_api_key=api_key)
-            object.__setattr__(llm, "provider", "google")
-        except ImportError:
-            return "❌ Xatolik: langchain-google-genai o'rnatilmagan"
+        # We route ALL providers through OpenRouter.
+        llm = ChatOpenAI(
+            model=selected_model,
+            api_key=openrouter_key,
+            base_url="https://openrouter.ai/api/v1"
+        )
+    except ImportError as e:
+        return f"❌ Xatolik: ChatOpenAI klassini import qilib bo'lmadi: {e}"
 
     try:
         # Local Chrome/Edge browser fallback or standard browser
@@ -152,18 +113,56 @@ async def run_browser_agent(task_text: str, provider: str, custom_api_key: str, 
         )
         
         history = await agent.run()
+        
         final_result = history.final_result()
-        return final_result if final_result else "✅ Topshiriq muvaffaqiyatli bajarildi."
+        
+        output = "✅ TOPSHIRIQ YAKUNLANDI.\n"
+        output += "=" * 50 + "\n\n"
+        
+        if final_result:
+            output += f"🎯 YAKUNIY NATIJA:\n{final_result}\n\n"
+            output += "=" * 50 + "\n\n"
+        
+        output += "🔍 MONITORING (QADAM-BA-QADAM JARAYON):\n"
+        output += "-" * 50 + "\n"
+        
+        try:
+            urls = history.urls()
+            if urls:
+                output += "🌐 TASHRIF BUYURILGAN SAYTLAR:\n"
+                for u in set(urls):
+                    output += f" - {u}\n"
+                output += "\n"
+        except Exception:
+            pass
+            
+        try:
+            for idx, action_result in enumerate(history.action_results()):
+                step_str = f"🔄 QADAM {idx + 1}:\n"
+                has_content = False
+                for res in action_result:
+                    if getattr(res, 'extracted_content', None):
+                        step_str += f"   📄 Ma'lumot: {res.extracted_content}\n"
+                        has_content = True
+                    if getattr(res, 'error', None):
+                        step_str += f"   ❌ Xato: {res.error}\n"
+                        has_content = True
+                if has_content:
+                    output += step_str + "\n"
+        except Exception:
+            pass
+
+        if not final_result and "🔄 QADAM" not in output:
+            output += "Agent hech qanday natija qaytarmadi. Topshiriqni aniqroq bering.\n"
+
+        return output
     except Exception as e:
         return f"❌ Xatolik yuz berdi: {str(e)}"
-
-def start_agent(task_text, provider, custom_api_key, model_name, headless_mode):
-    return asyncio.run(run_browser_agent(task_text, provider, custom_api_key, model_name, headless_mode))
 
 def update_model_dropdown(provider_choice):
     presets = MODEL_PRESETS.get(provider_choice, [])
     default_val = presets[0] if presets else ""
-    return gr.Dropdown(choices=presets, value=default_val)
+    return gr.update(choices=presets, value=default_val)
 
 # Gradio Web UI
 def create_ui():
@@ -223,35 +222,35 @@ def create_ui():
                 )
         
         # Provider selection button clicks
-        btn_claude.click(
-            fn=lambda: ("Claude (Anthropic)", gr.Dropdown(choices=MODEL_PRESETS["Claude (Anthropic)"], value=MODEL_PRESETS["Claude (Anthropic)"][0])),
+        btn_claude.click(  # type: ignore # pylint: disable=no-member
+            fn=lambda: ("Claude (Anthropic)", gr.update(choices=MODEL_PRESETS["Claude (Anthropic)"], value=MODEL_PRESETS["Claude (Anthropic)"][0])),
             outputs=[provider_dropdown, model_dropdown]
         )
-        btn_openai.click(
-            fn=lambda: ("ChatGPT (OpenAI)", gr.Dropdown(choices=MODEL_PRESETS["ChatGPT (OpenAI)"], value=MODEL_PRESETS["ChatGPT (OpenAI)"][0])),
+        btn_openai.click(  # type: ignore # pylint: disable=no-member
+            fn=lambda: ("ChatGPT (OpenAI)", gr.update(choices=MODEL_PRESETS["ChatGPT (OpenAI)"], value=MODEL_PRESETS["ChatGPT (OpenAI)"][0])),
             outputs=[provider_dropdown, model_dropdown]
         )
-        btn_gemini.click(
-            fn=lambda: ("Gemini (Google)", gr.Dropdown(choices=MODEL_PRESETS["Gemini (Google)"], value=MODEL_PRESETS["Gemini (Google)"][0])),
+        btn_gemini.click(  # type: ignore # pylint: disable=no-member
+            fn=lambda: ("Gemini (Google)", gr.update(choices=MODEL_PRESETS["Gemini (Google)"], value=MODEL_PRESETS["Gemini (Google)"][0])),
             outputs=[provider_dropdown, model_dropdown]
         )
         
         # Dropdown change updates model options
-        provider_dropdown.change(
+        provider_dropdown.change(  # type: ignore # pylint: disable=no-member
             fn=update_model_dropdown,
             inputs=provider_dropdown,
             outputs=model_dropdown
         )
         
         # Check ENV button
-        btn_check_env.click(
+        btn_check_env.click(  # type: ignore # pylint: disable=no-member
             fn=check_env_status,
             outputs=output_text
         )
         
         # Run button
-        run_btn.click(
-            fn=start_agent,
+        run_btn.click(  # type: ignore # pylint: disable=no-member
+            fn=run_browser_agent,
             inputs=[task_input, provider_dropdown, api_key_input, model_dropdown, headless_checkbox],
             outputs=output_text
         )

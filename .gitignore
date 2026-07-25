@@ -11,3 +11,6 @@ dev.db
 *.tsbuildinfo
 
 /src/generated/prisma
+venv/  
+scratch/  
+python_installer.exe 

@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: { id: string; chapt
         description: `Читать главу ${chapterNum} манги "${title}" онлайн на русском бесплатно.`,
       }
     };
-  } catch (e) {
+  } catch {
     return { title: "Читать мангу" };
   }
 }

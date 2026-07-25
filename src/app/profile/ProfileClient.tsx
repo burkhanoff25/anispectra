@@ -5,7 +5,7 @@ import { signIn, signOut } from "next-auth/react";
 import type { AniLibertyProfile } from "@/lib/api/user.service";
 import type { AniLibertyRelease } from "@/lib/types";
 import { Session } from "next-auth";
-import { AnimeHistory, MangaHistory } from "@prisma/client";
+import type { AnimeHistory, MangaHistory, AnimeFavorite, MangaFavorite } from "@prisma/client";
 import PosterCard from "@/components/PosterCard";
 import { AnimeService } from "@/lib/api/anime.service";
 import EmptyState from "@/components/EmptyState";
@@ -19,8 +19,8 @@ interface ProfileClientProps {
   animeHistory: AnimeHistory[];
   mangaHistory: MangaHistory[];
   popularReleases?: AniLibertyRelease[];
-  dbAnimeFavorites?: any[];
-  dbMangaFavorites?: any[];
+  dbAnimeFavorites: AnimeFavorite[];
+  dbMangaFavorites: MangaFavorite[];
 }
 
 export default function ProfileClient({
