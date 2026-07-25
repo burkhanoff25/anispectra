@@ -21,6 +21,7 @@ export default function SupportProject() {
           <div className="mx-auto mt-8 flex max-w-xs flex-col items-center justify-center rounded-2xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur-sm">
             <p className="mb-4 text-center text-sm font-medium text-white/80">Отсканируйте для быстрого перевода<br/>(Tinkoff / СБП)</p>
             <div className="overflow-hidden rounded-xl bg-white p-2 shadow-lg">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://www.tinkoff.ru/rm/r_TTuIWxZwQs.HLuLZKOYgh/dnVzR47613" 
                 alt="QR Code for Tinkoff" 
