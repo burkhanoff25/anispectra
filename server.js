@@ -106,7 +106,7 @@ app.prepare().then(() => {
 
     socket.on('play', (time) => {
       const room = rooms.get(socket.roomId);
-      if (room && room.hostId === socket.user.id) {
+      if (room) {
         room.isPlaying = true;
         room.currentTime = time;
         socket.to(socket.roomId).emit('sync-play', time);
@@ -115,7 +115,7 @@ app.prepare().then(() => {
 
     socket.on('pause', (time) => {
       const room = rooms.get(socket.roomId);
-      if (room && room.hostId === socket.user.id) {
+      if (room) {
         room.isPlaying = false;
         room.currentTime = time;
         socket.to(socket.roomId).emit('sync-pause', time);
@@ -124,7 +124,7 @@ app.prepare().then(() => {
 
     socket.on('seek', (time) => {
       const room = rooms.get(socket.roomId);
-      if (room && room.hostId === socket.user.id) {
+      if (room) {
         room.currentTime = time;
         socket.to(socket.roomId).emit('sync-seek', time);
       }
@@ -132,7 +132,7 @@ app.prepare().then(() => {
 
     socket.on('update-video', (url) => {
       const room = rooms.get(socket.roomId);
-      if (room && room.hostId === socket.user.id) {
+      if (room) {
         room.videoUrl = url;
         room.currentTime = 0;
         room.isPlaying = false;
@@ -142,7 +142,7 @@ app.prepare().then(() => {
     
     socket.on('update-anime', (animeData) => {
       const room = rooms.get(socket.roomId);
-      if (room && room.hostId === socket.user.id) {
+      if (room) {
         room.selectedAnime = animeData;
         room.currentEpisode = animeData?.episodes?.[0] || null;
         room.currentTime = 0;
@@ -153,7 +153,7 @@ app.prepare().then(() => {
 
     socket.on('update-episode', (episodeData) => {
       const room = rooms.get(socket.roomId);
-      if (room && room.hostId === socket.user.id) {
+      if (room) {
         room.currentEpisode = episodeData;
         room.currentTime = 0;
         room.isPlaying = false;

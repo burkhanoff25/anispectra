@@ -259,27 +259,23 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
     });
 
     socket.on('sync-play', (time) => {
-      if (!isHost) {
-        setPlaying(true);
-        if (playerRef.current && Math.abs(playerRef.current.getCurrentTime() - time) > 2) {
-          playerRef.current.seekTo(time);
-        }
-        if (playerRef.current) playerRef.current.play();
+      setPlaying(true);
+      if (playerRef.current && Math.abs(playerRef.current.getCurrentTime() - time) > 2) {
+        playerRef.current.seekTo(time);
       }
+      if (playerRef.current) playerRef.current.play();
     });
 
     socket.on('sync-pause', (time) => {
-      if (!isHost) {
-        setPlaying(false);
-        if (playerRef.current) {
-          playerRef.current.pause();
-          playerRef.current.seekTo(time);
-        }
+      setPlaying(false);
+      if (playerRef.current) {
+        playerRef.current.pause();
+        playerRef.current.seekTo(time);
       }
     });
 
     socket.on('sync-seek', (time) => {
-      if (!isHost && playerRef.current) {
+      if (playerRef.current) {
         playerRef.current.seekTo(time);
       }
     });
@@ -325,16 +321,12 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
   };
 
   const handleSeek = (time: number) => {
-    if (isHost) {
-      socket.emit('seek', time);
-    }
+    socket.emit('seek', time);
   };
 
   const handleEpisodeSelect = (episode: AniLibertyEpisode) => {
-    if (isHost) {
-      setCurrentEpisode(episode);
-      socket.emit('update-episode', episode);
-    }
+    setCurrentEpisode(episode);
+    socket.emit('update-episode', episode);
   };
 
   const sendChat = (e: React.FormEvent) => {
@@ -364,10 +356,6 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
   };
 
   const handleSelectAnime = async (anime: AniLibertyRelease) => {
-    if (!isHost) {
-      alert("Только хост может выбирать аниме!");
-      return;
-    }
     setIsLoadingAnime(true);
     setSelectedAnime(anime); // Set initial data for quick UI feedback
     setCurrentEpisode(anime.episodes?.[0] || null);
@@ -467,12 +455,6 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
             ) : (
               selectedAnime.episodes && selectedAnime.episodes.length > 0 && (
                 <div className="flex-1 w-full bg-black rounded-xl overflow-hidden shadow-2xl min-h-[500px] pointer-events-auto relative">
-                  {!isHost && (
-                    <div className="absolute top-4 right-4 z-50 bg-black/60 px-3 py-1 rounded-full text-xs text-white border border-white/20 backdrop-blur-md">
-                      Вы зритель
-                    </div>
-                  )}
-                  {/* Make player slightly transparent for non-hosts to avoid clicking if we wanted to disable clicks, but actually we just pass actions */}
                   <EpisodePlayer 
                     ref={playerRef}
                     episodes={selectedAnime.episodes} 
@@ -483,9 +465,6 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
                     onSeekAction={handleSeek}
                     onEpisodeSelectAction={handleEpisodeSelect}
                   />
-                  {!isHost && (
-                    <div className="absolute inset-0 z-40" onClick={() => alert("Только хост может управлять плеером!")} />
-                  )}
                 </div>
               )
             )}
