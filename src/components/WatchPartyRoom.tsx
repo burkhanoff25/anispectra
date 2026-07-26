@@ -450,19 +450,6 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
                       onEpisodeSelectAction={handleEpisodeSelect}
                     />
                   </div>
-                  
-                  {/* Anime Info Sidebar (Moved from top) */}
-                  <div className="w-full lg:w-72 xl:w-80 hidden md:flex flex-col items-center justify-start bg-[#111] border border-zinc-800 rounded-xl p-4 gap-4 overflow-y-auto">
-                    <img 
-                      src={selectedAnime.poster?.src ? (selectedAnime.poster.src.startsWith('http') ? selectedAnime.poster.src : `https://anilibria.top${selectedAnime.poster.src}`) : ''} 
-                      alt={selectedAnime.name.main} 
-                      className="w-full aspect-[3/4] object-cover rounded-lg shadow-lg"
-                    />
-                    <h4 className="text-white font-bold text-center text-lg flex items-center gap-2">
-                      {selectedAnime.name.main}
-                      {isLoadingAnime && <Loader2 size={16} className="animate-spin text-[#C4F135]" />}
-                    </h4>
-                  </div>
                 </div>
               )
             )}
