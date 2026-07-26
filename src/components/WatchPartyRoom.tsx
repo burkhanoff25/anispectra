@@ -6,7 +6,7 @@ import { getSocket } from '@/lib/socket';
 import { Copy, Users, MessageSquare, Play, Send, Search, Loader2, PlayCircle, ChevronLeft, Mic, MicOff } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { searchAnilibria, getAnimeByAlias, getPopularAnime, searchMangaAction, getPopularMangaAction } from '@/app/actions/search';
-import type { AniLibertyRelease, MangaDexManga } from '@/lib/types';
+import type { AniLibertyRelease, MangaDexManga, AniLibertyEpisode } from '@/lib/types';
 
 interface User {
   id: string;
