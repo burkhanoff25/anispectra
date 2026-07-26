@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Unbounded, Manrope } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -20,14 +20,32 @@ const body = Manrope({
   variable: "--font-body"
 });
 
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: {
-    default: "Anispectra — аниме и манга онлайн",
+    default: "Anispectra — аниме и манга",
     template: "%s | Anispectra"
   },
   description:
     "Anispectra: смотрите аниме онлайн и читайте мангу бесплатно. Свежие релизы, удобный плеер, история просмотра.",
   metadataBase: new URL("https://anispectra-sigma.vercel.app"),
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Anispectra",
+  },
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     siteName: "Anispectra",
     type: "website",
@@ -51,6 +69,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Providers>
         <Analytics />
         <SpeedInsights />
+
+        {/* PWA Service Worker Registration */}
+        <Script id="register-sw" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(
+                  function(registration) { console.log('Service Worker registration successful'); },
+                  function(err) { console.log('Service Worker registration failed: ', err); }
+                );
+              });
+            }
+          `}
+        </Script>
         
         {/* Google Analytics */}
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-L8KTS5J96J" strategy="afterInteractive" />
