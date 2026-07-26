@@ -5,7 +5,7 @@ import Hls from "hls.js";
 import type { AniLibertyEpisode } from "@/lib/types";
 import { 
   Play, Pause, Maximize, Minimize, Settings, X, 
-  Volume2, VolumeX, SkipBack, SkipForward 
+  Volume2, VolumeX, SkipBack, SkipForward, List
 } from "lucide-react";
 
 export interface EpisodePlayerRef {
@@ -47,6 +47,7 @@ const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({
 
   // Settings State
   const [showSettings, setShowSettings] = useState(false);
+  const [showEpisodes, setShowEpisodes] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [quality, setQuality] = useState<Quality>("1080p");
   const [autoNext, setAutoNext] = useState(true);
@@ -282,7 +283,7 @@ const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({
     }
   };
   const handleMouseLeave = () => {
-    if (playing && !showSettings) setShowControls(false);
+    if (playing && !showSettings && !showEpisodes) setShowControls(false);
   };
 
   // Playback Rate
@@ -328,14 +329,14 @@ const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row">
-      <div className="flex-1">
+    <div className="flex w-full h-full relative">
+      <div className="flex-1 w-full h-full">
         <div 
           ref={containerRef}
-          className="group relative aspect-video overflow-hidden rounded-2xl border border-line bg-base shadow-glow flex flex-col justify-center"
+          className="group relative w-full h-full aspect-video md:aspect-auto overflow-hidden rounded-2xl border border-line bg-base shadow-glow flex flex-col justify-center"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          onClick={() => { if(showSettings) setShowSettings(false); }}
+          onClick={() => { if(showSettings) setShowSettings(false); if(showEpisodes) setShowEpisodes(false); }}
         >
           {error ? (
             <div className="flex h-full items-center justify-center text-sm text-mist absolute inset-0 bg-base z-10">
@@ -363,13 +364,8 @@ const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({
                 }
               }}
               onEnded={handleVideoEnd}
-              onPlay={() => setPlaying(true)}
-              onPause={() => {
-                setPlaying(false);
-                onPauseAction?.(videoRef.current?.currentTime || 0);
-              }}
               onWaiting={() => setIsLoading(true)}
-              onPlaying={() => setIsLoading(false)}
+              onPlaying={() => { setIsLoading(false); setPlaying(true); }}
               onCanPlay={() => setIsLoading(false)}
               onLoadStart={() => setIsLoading(true)}
               onLoadedData={() => setIsLoading(false)}
@@ -386,7 +382,7 @@ const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({
           {/* Controls Overlay */}
           <div 
             className={`absolute bottom-0 left-0 right-0 z-20 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 pt-24 transition-opacity duration-300 ${
-              showControls || !playing || showSettings ? "opacity-100" : "opacity-0 pointer-events-none"
+              showControls || !playing || showSettings || showEpisodes ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -478,14 +474,60 @@ const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({
 
               <div className="flex items-center gap-5 relative">
                 <button 
-                  onClick={() => setShowSettings(!showSettings)} 
-                  className={`hover:text-primary transition ${showSettings ? 'rotate-90' : ''}`}
+                  onClick={() => { setShowEpisodes(!showEpisodes); setShowSettings(false); }} 
+                  className={`hover:text-primary transition ${showEpisodes ? 'text-primary' : ''}`}
+                >
+                  <List size={20} />
+                </button>
+                <button 
+                  onClick={() => { setShowSettings(!showSettings); setShowEpisodes(false); }} 
+                  className={`hover:text-primary transition ${showSettings ? 'rotate-90 text-primary' : ''}`}
                 >
                   <Settings size={20} />
                 </button>
                 <button onClick={toggleFullscreen} className="hover:text-primary transition">
                   {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
                 </button>
+
+                {/* Episodes Overlay */}
+                {showEpisodes && (
+                  <div className="absolute bottom-[calc(100%+16px)] right-0 w-[300px] max-h-[350px] overflow-hidden rounded-2xl bg-[#1c1c1e]/95 p-4 shadow-2xl backdrop-blur-xl border border-white/10 text-sm animate-in zoom-in-95 z-30 flex flex-col">
+                    <div className="flex items-center justify-between mb-3 shrink-0">
+                      <h4 className="font-bold text-white text-[15px]">Эпизоды ({episodes.length})</h4>
+                      <button onClick={() => setShowEpisodes(false)} className="text-gray-400 hover:text-white transition">
+                        <X size={18} />
+                      </button>
+                    </div>
+                    <div className="custom-scrollbar flex flex-col gap-2 overflow-y-auto pr-1">
+                      {episodes.map((ep) => {
+                        const isActive = currentEp?.ordinal === ep.ordinal;
+                        return (
+                          <button
+                            key={ep.id}
+                            onClick={() => {
+                              setCurrentEp(ep);
+                              onEpisodeSelectAction?.(ep);
+                              setPlaying(true);
+                            }}
+                            className={`flex w-full items-center justify-between rounded-xl p-2.5 text-left transition ${
+                              isActive
+                                ? "bg-primary/20 text-primary border border-primary/30"
+                                : "bg-black/40 text-gray-300 hover:bg-black/60 hover:text-white border border-transparent"
+                            }`}
+                          >
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-[13px]">
+                                Эпизод {ep.ordinal}
+                              </span>
+                              {ep.name && <span className="text-[11px] opacity-70 mt-0.5 line-clamp-1">{ep.name}</span>}
+                            </div>
+                            {isActive && playing && <Play size={12} className="animate-pulse" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Settings Popup */}
                 {showSettings && (
@@ -564,38 +606,6 @@ const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="w-full lg:w-72 xl:w-80 flex flex-col">
-        <h3 className="mb-4 font-display text-lg font-bold text-paper">Эпизоды ({episodes.length})</h3>
-        <div className="custom-scrollbar flex max-h-[500px] flex-col gap-2 overflow-y-auto pr-2 bg-base p-2 rounded-2xl border border-line">
-          {episodes.map((ep) => {
-            const isActive = currentEp?.ordinal === ep.ordinal;
-            return (
-              <button
-                key={ep.id}
-                onClick={() => {
-                  setCurrentEp(ep);
-                  onEpisodeSelectAction?.(ep);
-                  setPlaying(true);
-                }}
-                className={`flex w-full items-center justify-between rounded-xl p-3 text-left transition ${
-                  isActive
-                    ? "bg-primary/10 text-primary border border-primary/20"
-                    : "bg-panel text-mist hover:bg-panel2 hover:text-paper border border-transparent"
-                }`}
-              >
-                <div className="flex flex-col">
-                  <span className="font-semibold text-sm">
-                    Эпизод {ep.ordinal}
-                  </span>
-                  {ep.name && <span className="text-xs opacity-70 mt-1 line-clamp-1">{ep.name}</span>}
-                </div>
-                {isActive && playing && <Play size={14} className="animate-pulse" />}
-              </button>
-            );
-          })}
         </div>
       </div>
     </div>

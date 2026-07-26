@@ -1,9 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useState, useRef } from 'react';
 import EpisodePlayer, { EpisodePlayerRef } from '@/components/EpisodePlayer';
 import { getSocket } from '@/lib/socket';
-import { Copy, Users, MessageSquare, Play, Send, Search, Loader2, PlayCircle, ChevronLeft, Mic, MicOff } from 'lucide-react';
+import { Copy, Users, Play, Send, Search, Loader2, PlayCircle, ChevronLeft, Mic, MicOff } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { searchAnilibria, getAnimeByAlias, getPopularAnime, searchMangaAction, getPopularMangaAction } from '@/app/actions/search';
 import type { AniLibertyRelease, MangaDexManga, AniLibertyEpisode } from '@/lib/types';
@@ -27,8 +28,6 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
   const [hostId, setHostId] = useState<string>('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
-  const [playing, setPlaying] = useState(false);
   const [error, setError] = useState<string>('');
   
   // Search state
@@ -143,7 +142,7 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       socket.emit('webrtc-offer', { targetId: userId, offer });
     };
 
-    const handleOffer = async ({ senderId, offer }: any) => {
+    const handleOffer = async ({ senderId, offer }: { senderId: string, offer: RTCSessionDescriptionInit }) => {
       const pc = createPeerConnection(senderId);
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await pc.createAnswer();
@@ -151,14 +150,14 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       socket.emit('webrtc-answer', { targetId: senderId, answer });
     };
 
-    const handleAnswer = async ({ senderId, answer }: any) => {
+    const handleAnswer = async ({ senderId, answer }: { senderId: string, answer: RTCSessionDescriptionInit }) => {
       const pc = peersRef.current[senderId];
       if (pc) {
         await pc.setRemoteDescription(new RTCSessionDescription(answer));
       }
     };
 
-    const handleIceCandidate = ({ senderId, candidate }: any) => {
+    const handleIceCandidate = ({ senderId, candidate }: { senderId: string, candidate: RTCIceCandidateInit }) => {
       const pc = peersRef.current[senderId];
       if (pc) {
         pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => console.error(e));
@@ -187,6 +186,7 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       socket.off('ice-candidate', handleIceCandidate);
       socket.off('user-left-voice', handleUserLeft);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInVoice, socket]);
 
   useEffect(() => {
@@ -228,12 +228,10 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       if (state.selectedAnime) setSelectedAnime(state.selectedAnime);
       if (state.currentEpisode) setCurrentEpisode(state.currentEpisode);
       
-      // Auto-sync for late joiners (viewer)
       if (state.hostId !== session?.user?.id) {
         if (playerRef.current) {
           playerRef.current.seekTo(state.currentTime);
         }
-        setPlaying(state.isPlaying);
       }
     });
 
@@ -256,21 +254,18 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       setPlaying(false);
     });
 
-    socket.on('video-changed', (url) => {
-      setVideoUrl(url);
-      setPlaying(false);
+    socket.on('video-changed', (_url: string) => {
+      // Just listen to it, do nothing since it's unused directly
     });
 
-    socket.on('sync-play', (time) => {
-      setPlaying(true);
+    socket.on('sync-play', (time: number) => {
       if (playerRef.current && Math.abs(playerRef.current.getCurrentTime() - time) > 2) {
         playerRef.current.seekTo(time);
       }
       if (playerRef.current) playerRef.current.play();
     });
 
-    socket.on('sync-pause', (time) => {
-      setPlaying(false);
+    socket.on('sync-pause', (time: number) => {
       if (playerRef.current) {
         playerRef.current.pause();
         playerRef.current.seekTo(time);
@@ -302,7 +297,8 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       socket.off('sync-seek');
       socket.off('chat-message');
     };
-  }, [roomId, session?.user?.id, isHost]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId, isHost]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -314,12 +310,10 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
   };
 
   const handlePlay = (time: number) => {
-      setPlaying(true);
       socket.emit('play', time);
   };
 
   const handlePause = (time: number) => {
-      setPlaying(false);
       socket.emit('pause', time);
   };
 
@@ -441,33 +435,37 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
             >
               <ChevronLeft size={16} /> Вернуться к поиску
             </button>
-            <div className="flex items-center gap-4 mb-4">
-              <img 
-                src={selectedAnime.poster?.src ? (selectedAnime.poster.src.startsWith('http') ? selectedAnime.poster.src : `https://anilibria.top${selectedAnime.poster.src}`) : ''} 
-                alt={selectedAnime.name.main} 
-                className="w-12 h-16 object-cover rounded-lg"
-              />
-              <h4 className="text-white font-bold text-lg flex items-center gap-2">
-                {selectedAnime.name.main}
-                {isLoadingAnime && <Loader2 size={16} className="animate-spin text-[#C4F135]" />}
-              </h4>
-            </div>
             
             {!isLoadingAnime && (!selectedAnime.episodes || selectedAnime.episodes.length === 0) ? (
               <p className="text-zinc-500 text-sm">Эпизоды недоступны.</p>
             ) : (
               selectedAnime.episodes && selectedAnime.episodes.length > 0 && (
-                <div className="flex-1 w-full bg-black rounded-xl overflow-hidden shadow-2xl min-h-[500px] pointer-events-auto relative">
-                  <EpisodePlayer 
-                    ref={playerRef}
-                    episodes={selectedAnime.episodes} 
-                    titleId={selectedAnime.id.toString()} 
-                    currentEpisodeOverride={currentEpisode}
-                    onPlayAction={handlePlay}
-                    onPauseAction={handlePause}
-                    onSeekAction={handleSeek}
-                    onEpisodeSelectAction={handleEpisodeSelect}
-                  />
+                <div className="flex gap-4 flex-1 h-full min-h-[500px]">
+                  <div className="flex-1 w-full bg-black rounded-xl overflow-hidden shadow-2xl pointer-events-auto relative">
+                    <EpisodePlayer 
+                      ref={playerRef}
+                      episodes={selectedAnime.episodes} 
+                      titleId={selectedAnime.id.toString()} 
+                      currentEpisodeOverride={currentEpisode}
+                      onPlayAction={handlePlay}
+                      onPauseAction={handlePause}
+                      onSeekAction={handleSeek}
+                      onEpisodeSelectAction={handleEpisodeSelect}
+                    />
+                  </div>
+                  
+                  {/* Anime Info Sidebar (Moved from top) */}
+                  <div className="w-full lg:w-72 xl:w-80 hidden md:flex flex-col items-center justify-start bg-[#111] border border-zinc-800 rounded-xl p-4 gap-4 overflow-y-auto">
+                    <img 
+                      src={selectedAnime.poster?.src ? (selectedAnime.poster.src.startsWith('http') ? selectedAnime.poster.src : `https://anilibria.top${selectedAnime.poster.src}`) : ''} 
+                      alt={selectedAnime.name.main} 
+                      className="w-full aspect-[3/4] object-cover rounded-lg shadow-lg"
+                    />
+                    <h4 className="text-white font-bold text-center text-lg flex items-center gap-2">
+                      {selectedAnime.name.main}
+                      {isLoadingAnime && <Loader2 size={16} className="animate-spin text-[#C4F135]" />}
+                    </h4>
+                  </div>
                 </div>
               )
             )}
@@ -600,7 +598,7 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
                 <img
                   src={u.image || "https://ui-avatars.com/api/?name=" + u.name}
                   alt={u.name}
-                  className={`w-10 h-10 rounded-full border-2 ${u.id === hostId ? 'border-[#C4F135]' : 'border-transparent'}`}
+                  className={`w-10 h-10 rounded-full border-2 ${u.id === hostId ? 'border-[#C4F135]' : 'border-zinc-800'}`}
                 />
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block whitespace-nowrap bg-zinc-800 text-xs px-2 py-1 rounded">
                   {u.name} {u.id === hostId ? '(Host)' : ''}
