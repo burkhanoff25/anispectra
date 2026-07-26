@@ -489,9 +489,8 @@ const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({
                   {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
                 </button>
 
-                {/* Episodes Overlay */}
                 {showEpisodes && (
-                  <div className="absolute bottom-[calc(100%+16px)] right-0 w-[300px] max-h-[350px] overflow-hidden rounded-2xl bg-[#1c1c1e]/95 p-4 shadow-2xl backdrop-blur-xl border border-white/10 text-sm animate-in zoom-in-95 z-30 flex flex-col">
+                  <div className="absolute bottom-[calc(100%+16px)] right-0 w-[280px] max-h-[350px] overflow-hidden rounded-2xl bg-[#1c1c1e]/95 p-4 shadow-2xl backdrop-blur-xl border border-white/10 text-sm animate-in zoom-in-95 z-30 flex flex-col">
                     <div className="flex items-center justify-between mb-3 shrink-0">
                       <h4 className="font-bold text-white text-[15px]">Эпизоды ({episodes.length})</h4>
                       <button onClick={() => setShowEpisodes(false)} className="text-gray-400 hover:text-white transition">

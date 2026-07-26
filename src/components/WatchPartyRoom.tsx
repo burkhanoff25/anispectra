@@ -379,9 +379,9 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-64px)] bg-black text-zinc-300">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-64px)] bg-black text-zinc-300 overflow-hidden">
       {/* Main Video Area */}
-      <div className="flex-1 flex flex-col p-4">
+      <div className="flex-none md:flex-1 w-full h-[45%] md:h-full flex flex-col p-2 md:p-4 overflow-y-auto custom-scrollbar">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Play className="text-[#C4F135]" /> Совместный просмотр
@@ -437,8 +437,8 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
               <p className="text-zinc-500 text-sm">Эпизоды недоступны.</p>
             ) : (
               selectedAnime.episodes && selectedAnime.episodes.length > 0 && (
-                <div className="flex gap-4 flex-1 h-full min-h-[500px]">
-                  <div className="flex-1 w-full bg-black rounded-xl overflow-hidden shadow-2xl pointer-events-auto relative">
+                <div className="flex gap-4 w-full h-full min-h-[250px] md:min-h-0">
+                  <div className="w-full h-full bg-black rounded-xl overflow-hidden shadow-2xl pointer-events-auto relative">
                     <EpisodePlayer 
                       ref={playerRef}
                       episodes={selectedAnime.episodes} 
@@ -569,7 +569,7 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       </div>
 
       {/* Sidebar: Chat & Users */}
-      <div className="w-full md:w-80 border-l border-zinc-800 flex flex-col h-full bg-[#0a0a0a]">
+      <div className="flex-1 md:flex-none w-full md:w-80 border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col h-[55%] md:h-full bg-[#0a0a0a]">
         
         {/* Users List */}
         <div className="p-4 border-b border-zinc-800">
