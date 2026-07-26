@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import Hls from "hls.js";
 import type { AniLibertyEpisode } from "@/lib/types";
 import { 
@@ -8,14 +8,28 @@ import {
   Volume2, VolumeX, SkipBack, SkipForward 
 } from "lucide-react";
 
+export interface EpisodePlayerRef {
+  play: () => void;
+  pause: () => void;
+  seekTo: (time: number) => void;
+  getCurrentTime: () => number;
+}
+
 interface EpisodePlayerProps {
   episodes: AniLibertyEpisode[];
   titleId?: string;
+  onPlayAction?: (time: number) => void;
+  onPauseAction?: (time: number) => void;
+  onSeekAction?: (time: number) => void;
+  onEpisodeSelectAction?: (episode: AniLibertyEpisode) => void;
+  currentEpisodeOverride?: AniLibertyEpisode | null;
 }
 
 type Quality = "1080p" | "720p" | "480p";
 
-export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps) {
+const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({ 
+  episodes, titleId, onPlayAction, onPauseAction, onSeekAction, onEpisodeSelectAction, currentEpisodeOverride 
+}, ref) => {
   const [currentEp, setCurrentEp] = useState<AniLibertyEpisode | null>(episodes[0] ?? null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,6 +55,31 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
 
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    play: () => {
+      setPlaying(true);
+      videoRef.current?.play().catch(() => {});
+    },
+    pause: () => {
+      setPlaying(false);
+      videoRef.current?.pause();
+    },
+    seekTo: (time: number) => {
+      if (videoRef.current && Math.abs(videoRef.current.currentTime - time) > 1) {
+        videoRef.current.currentTime = time;
+      }
+    },
+    getCurrentTime: () => {
+      return videoRef.current?.currentTime || 0;
+    }
+  }));
+
+  useEffect(() => {
+    if (currentEpisodeOverride) {
+      setCurrentEp(currentEpisodeOverride);
+    }
+  }, [currentEpisodeOverride]);
 
   // Format time (e.g. 01:23 or 1:02:23)
   const formatTime = (timeInSeconds: number) => {
@@ -138,7 +177,9 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
     if (autoNext) {
       const currentIndex = episodes.findIndex((ep) => ep.id === currentEp?.id);
       if (currentIndex !== -1 && currentIndex < episodes.length - 1) {
-        setCurrentEp(episodes[currentIndex + 1]);
+        const nextEp = episodes[currentIndex + 1];
+        setCurrentEp(nextEp);
+        onEpisodeSelectAction?.(nextEp);
         if (videoRef.current) {
           videoRef.current.currentTime = 0;
           setPlaying(true);
@@ -179,11 +220,16 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
   // Play/Pause
   const togglePlay = useCallback(() => {
     if (videoRef.current) {
-      if (playing) videoRef.current.pause();
-      else videoRef.current.play().catch(() => {});
+      if (playing) {
+        videoRef.current.pause();
+        onPauseAction?.(videoRef.current.currentTime);
+      } else {
+        videoRef.current.play().catch(() => {});
+        onPlayAction?.(videoRef.current.currentTime);
+      }
       setPlaying(!playing);
     }
-  }, [playing]);
+  }, [playing, onPlayAction, onPauseAction]);
 
   // Volume
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,7 +252,10 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value);
     setCurrentTime(val);
-    if (videoRef.current) videoRef.current.currentTime = val;
+    if (videoRef.current) {
+      videoRef.current.currentTime = val;
+      onSeekAction?.(val);
+    }
   };
 
   // Fullscreen
@@ -315,7 +364,10 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
               }}
               onEnded={handleVideoEnd}
               onPlay={() => setPlaying(true)}
-              onPause={() => setPlaying(false)}
+              onPause={() => {
+                setPlaying(false);
+                onPauseAction?.(videoRef.current?.currentTime || 0);
+              }}
               onWaiting={() => setIsLoading(true)}
               onPlaying={() => setIsLoading(false)}
               onCanPlay={() => setIsLoading(false)}
@@ -370,7 +422,12 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
                   <button 
                     onClick={() => {
                       const idx = episodes.findIndex((e) => e.id === currentEp?.id);
-                      if (idx > 0) { setCurrentEp(episodes[idx - 1]); setPlaying(true); }
+                      if (idx > 0) { 
+                        const prevEp = episodes[idx - 1];
+                        setCurrentEp(prevEp); 
+                        onEpisodeSelectAction?.(prevEp);
+                        setPlaying(true); 
+                      }
                     }} 
                     className={`transition ${episodes.findIndex((e) => e.id === currentEp?.id) > 0 ? "hover:text-primary cursor-pointer" : "opacity-30 cursor-not-allowed"}`}
                     title="Предыдущий эпизод"
@@ -385,7 +442,12 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
                   <button 
                     onClick={() => {
                       const idx = episodes.findIndex((e) => e.id === currentEp?.id);
-                      if (idx >= 0 && idx < episodes.length - 1) { setCurrentEp(episodes[idx + 1]); setPlaying(true); }
+                      if (idx >= 0 && idx < episodes.length - 1) { 
+                        const nextEp = episodes[idx + 1];
+                        setCurrentEp(nextEp); 
+                        onEpisodeSelectAction?.(nextEp);
+                        setPlaying(true); 
+                      }
                     }} 
                     className={`transition ${episodes.findIndex((e) => e.id === currentEp?.id) < episodes.length - 1 ? "hover:text-primary cursor-pointer" : "opacity-30 cursor-not-allowed"}`}
                     title="Следующий эпизод"
@@ -515,6 +577,7 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
                 key={ep.id}
                 onClick={() => {
                   setCurrentEp(ep);
+                  onEpisodeSelectAction?.(ep);
                   setPlaying(true);
                 }}
                 className={`flex w-full items-center justify-between rounded-xl p-3 text-left transition ${
@@ -537,4 +600,8 @@ export default function EpisodePlayer({ episodes, titleId }: EpisodePlayerProps)
       </div>
     </div>
   );
-}
+});
+
+EpisodePlayer.displayName = "EpisodePlayer";
+
+export default EpisodePlayer;

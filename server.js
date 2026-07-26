@@ -73,6 +73,8 @@ app.prepare().then(() => {
         room = {
           hostId: socket.user.id, // Creator becomes host
           videoUrl: '', // Start empty so player is hidden until selected
+          selectedAnime: null,
+          currentEpisode: null,
           currentTime: 0,
           isPlaying: false,
           users: new Map()
@@ -91,6 +93,8 @@ app.prepare().then(() => {
       socket.emit('room-state', {
         hostId: room.hostId,
         videoUrl: room.videoUrl,
+        selectedAnime: room.selectedAnime,
+        currentEpisode: room.currentEpisode,
         currentTime: room.currentTime,
         isPlaying: room.isPlaying,
         users: Array.from(room.users.values())
@@ -133,6 +137,27 @@ app.prepare().then(() => {
         room.currentTime = 0;
         room.isPlaying = false;
         io.to(socket.roomId).emit('video-changed', url);
+      }
+    });
+    
+    socket.on('update-anime', (animeData) => {
+      const room = rooms.get(socket.roomId);
+      if (room && room.hostId === socket.user.id) {
+        room.selectedAnime = animeData;
+        room.currentEpisode = animeData?.episodes?.[0] || null;
+        room.currentTime = 0;
+        room.isPlaying = false;
+        io.to(socket.roomId).emit('anime-changed', animeData);
+      }
+    });
+
+    socket.on('update-episode', (episodeData) => {
+      const room = rooms.get(socket.roomId);
+      if (room && room.hostId === socket.user.id) {
+        room.currentEpisode = episodeData;
+        room.currentTime = 0;
+        room.isPlaying = false;
+        io.to(socket.roomId).emit('episode-changed', episodeData);
       }
     });
     

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from 'react';
-import EpisodePlayer from '@/components/EpisodePlayer';
+import EpisodePlayer, { EpisodePlayerRef } from '@/components/EpisodePlayer';
 import { getSocket } from '@/lib/socket';
 import { Copy, Users, MessageSquare, Play, Send, Search, Loader2, PlayCircle, ChevronLeft, Mic, MicOff } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -38,6 +38,7 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
   const [mangaResults, setMangaResults] = useState<MangaDexManga[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedAnime, setSelectedAnime] = useState<AniLibertyRelease | null>(null);
+  const [currentEpisode, setCurrentEpisode] = useState<AniLibertyEpisode | null>(null);
   const [isLoadingAnime, setIsLoadingAnime] = useState(false);
   
   // Voice Chat State
@@ -47,7 +48,7 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
   const peersRef = useRef<{ [userId: string]: RTCPeerConnection }>({});
   const audioContainerRef = useRef<HTMLDivElement>(null);
   
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<EpisodePlayerRef>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   
   const isHost = session?.user?.id === hostId;
@@ -221,10 +222,13 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       setVideoUrl(state.videoUrl);
       setUsers(state.users);
       
+      if (state.selectedAnime) setSelectedAnime(state.selectedAnime);
+      if (state.currentEpisode) setCurrentEpisode(state.currentEpisode);
+      
       // Auto-sync for late joiners (viewer)
       if (state.hostId !== session?.user?.id) {
         if (playerRef.current) {
-          playerRef.current.seekTo(state.currentTime, 'seconds');
+          playerRef.current.seekTo(state.currentTime);
         }
         setPlaying(state.isPlaying);
       }
@@ -238,6 +242,17 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       setHostId(newHostId);
     });
 
+    socket.on('anime-changed', (anime) => {
+      setSelectedAnime(anime);
+      setCurrentEpisode(anime?.episodes?.[0] || null);
+      setPlaying(false);
+    });
+
+    socket.on('episode-changed', (episode) => {
+      setCurrentEpisode(episode);
+      setPlaying(false);
+    });
+
     socket.on('video-changed', (url) => {
       setVideoUrl(url);
       setPlaying(false);
@@ -247,8 +262,9 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       if (!isHost) {
         setPlaying(true);
         if (playerRef.current && Math.abs(playerRef.current.getCurrentTime() - time) > 2) {
-          playerRef.current.seekTo(time, 'seconds');
+          playerRef.current.seekTo(time);
         }
+        if (playerRef.current) playerRef.current.play();
       }
     });
 
@@ -256,14 +272,15 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       if (!isHost) {
         setPlaying(false);
         if (playerRef.current) {
-          playerRef.current.seekTo(time, 'seconds');
+          playerRef.current.pause();
+          playerRef.current.seekTo(time);
         }
       }
     });
 
     socket.on('sync-seek', (time) => {
       if (!isHost && playerRef.current) {
-        playerRef.current.seekTo(time, 'seconds');
+        playerRef.current.seekTo(time);
       }
     });
 
@@ -278,6 +295,8 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       socket.off('room-state');
       socket.off('users-updated');
       socket.off('host-changed');
+      socket.off('anime-changed');
+      socket.off('episode-changed');
       socket.off('video-changed');
       socket.off('sync-play');
       socket.off('sync-pause');
@@ -295,23 +314,26 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
     alert('Ссылка скопирована!');
   };
 
-  const handlePlay = () => {
-    if (isHost && playerRef.current) {
+  const handlePlay = (time: number) => {
       setPlaying(true);
-      socket.emit('play', playerRef.current.getCurrentTime());
-    }
+      socket.emit('play', time);
   };
 
-  const handlePause = () => {
-    if (isHost && playerRef.current) {
+  const handlePause = (time: number) => {
       setPlaying(false);
-      socket.emit('pause', playerRef.current.getCurrentTime());
+      socket.emit('pause', time);
+  };
+
+  const handleSeek = (time: number) => {
+    if (isHost) {
+      socket.emit('seek', time);
     }
   };
 
-  const handleSeek = (e: number) => {
+  const handleEpisodeSelect = (episode: AniLibertyEpisode) => {
     if (isHost) {
-      socket.emit('seek', e);
+      setCurrentEpisode(episode);
+      socket.emit('update-episode', episode);
     }
   };
 
@@ -342,15 +364,25 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
   };
 
   const handleSelectAnime = async (anime: AniLibertyRelease) => {
+    if (!isHost) {
+      alert("Только хост может выбирать аниме!");
+      return;
+    }
     setIsLoadingAnime(true);
     setSelectedAnime(anime); // Set initial data for quick UI feedback
+    setCurrentEpisode(anime.episodes?.[0] || null);
     try {
       const fullDetails = await getAnimeByAlias(anime.alias);
       if (fullDetails) {
         setSelectedAnime(fullDetails);
+        setCurrentEpisode(fullDetails.episodes?.[0] || null);
+        socket.emit('update-anime', fullDetails);
+      } else {
+        socket.emit('update-anime', anime);
       }
     } catch (e) {
       console.error(e);
+      socket.emit('update-anime', anime);
     } finally {
       setIsLoadingAnime(false);
     }
@@ -434,8 +466,26 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
               <p className="text-zinc-500 text-sm">Эпизоды недоступны.</p>
             ) : (
               selectedAnime.episodes && selectedAnime.episodes.length > 0 && (
-                <div className="flex-1 w-full bg-black rounded-xl overflow-hidden shadow-2xl min-h-[500px]">
-                  <EpisodePlayer episodes={selectedAnime.episodes} titleId={selectedAnime.id.toString()} />
+                <div className="flex-1 w-full bg-black rounded-xl overflow-hidden shadow-2xl min-h-[500px] pointer-events-auto relative">
+                  {!isHost && (
+                    <div className="absolute top-4 right-4 z-50 bg-black/60 px-3 py-1 rounded-full text-xs text-white border border-white/20 backdrop-blur-md">
+                      Вы зритель
+                    </div>
+                  )}
+                  {/* Make player slightly transparent for non-hosts to avoid clicking if we wanted to disable clicks, but actually we just pass actions */}
+                  <EpisodePlayer 
+                    ref={playerRef}
+                    episodes={selectedAnime.episodes} 
+                    titleId={selectedAnime.id.toString()} 
+                    currentEpisodeOverride={currentEpisode}
+                    onPlayAction={handlePlay}
+                    onPauseAction={handlePause}
+                    onSeekAction={handleSeek}
+                    onEpisodeSelectAction={handleEpisodeSelect}
+                  />
+                  {!isHost && (
+                    <div className="absolute inset-0 z-40" onClick={() => alert("Только хост может управлять плеером!")} />
+                  )}
                 </div>
               )
             )}
