@@ -19,11 +19,11 @@ const BASE_URL = "https://www.googleapis.com/youtube/v3";
 function parseDurationToSeconds(duration: string): number {
   const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
   if (!match) return 0;
-  
+
   const hours = parseInt(match[1] || "0", 10);
   const minutes = parseInt(match[2] || "0", 10);
   const seconds = parseInt(match[3] || "0", 10);
-  
+
   return hours * 3600 + minutes * 60 + seconds;
 }
 
@@ -41,7 +41,7 @@ export async function getYoutubeShorts(): Promise<YoutubeShort[]> {
     );
     const channelsData = await channelsRes.json();
     if (!channelsData.items || channelsData.items.length === 0) return [];
-    
+
     const uploadsPlaylistId = channelsData.items[0].contentDetails.relatedPlaylists.uploads;
 
     // 2. Fetch the latest 50 videos from the uploads playlist
@@ -68,7 +68,7 @@ export async function getYoutubeShorts(): Promise<YoutubeShort[]> {
         const durationSeconds = parseDurationToSeconds(video.contentDetails.duration);
         const title = video.snippet.title.toLowerCase();
         const description = video.snippet.description.toLowerCase();
-        
+
         // A video is a Short if its duration is under 60 seconds OR it contains #shorts in title/desc
         return durationSeconds <= 60 || title.includes('#shorts') || description.includes('#shorts');
       })
@@ -76,7 +76,7 @@ export async function getYoutubeShorts(): Promise<YoutubeShort[]> {
         const thumbnails = video.snippet.thumbnails;
         // Prefer maxres, then high, then medium
         const thumbnailUrl = thumbnails.maxres?.url || thumbnails.high?.url || thumbnails.medium?.url || thumbnails.default?.url;
-        
+
         return {
           id: video.id,
           title: video.snippet.title,

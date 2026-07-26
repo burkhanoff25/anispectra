@@ -222,7 +222,6 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
 
     socket.on('room-state', (state) => {
       setHostId(state.hostId);
-      setVideoUrl(state.videoUrl);
       setUsers(state.users);
       
       if (state.selectedAnime) setSelectedAnime(state.selectedAnime);
@@ -246,12 +245,10 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
     socket.on('anime-changed', (anime) => {
       setSelectedAnime(anime);
       setCurrentEpisode(anime?.episodes?.[0] || null);
-      setPlaying(false);
     });
 
     socket.on('episode-changed', (episode) => {
       setCurrentEpisode(episode);
-      setPlaying(false);
     });
 
     socket.on('video-changed', (_url: string) => {
