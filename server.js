@@ -18,7 +18,12 @@ app.prepare().then(() => {
   });
 
   const io = new Server(httpServer, {
-    cors: { origin: '*' }
+    cors: { 
+      origin: (origin, callback) => {
+        callback(null, true); // Barcha domenlarga ruxsat berish (shu jumladan vercel)
+      },
+      credentials: true
+    }
   });
 
   // Middleware for cross-domain Auth (Accepts session from frontend)
