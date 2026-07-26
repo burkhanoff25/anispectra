@@ -2,9 +2,9 @@ const CACHE_NAME = 'anispectra-pwa-cache-v1';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/apple-touch-icon.png'
+  '/anispectra-192x192.png',
+  '/anispectra-512x512.png',
+  '/anispectra-180x180.png'
 ];
 
 self.addEventListener('install', (event) => {

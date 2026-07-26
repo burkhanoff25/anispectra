@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     title: "Anispectra",
   },
   icons: {
-    apple: "/apple-touch-icon.png",
+    apple: "/anispectra-180x180.png",
   },
   openGraph: {
     siteName: "Anispectra",
