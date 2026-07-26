@@ -21,36 +21,15 @@ app.prepare().then(() => {
     cors: { origin: '*' }
   });
 
-  // Middleware for NextAuth verification
-  io.use(async (socket, next) => {
+  // Middleware for cross-domain Auth (Accepts session from frontend)
+  io.use((socket, next) => {
     try {
-      // Mock Next.js req.cookies if needed by getToken
-      if (!socket.request.cookies && socket.request.headers.cookie) {
-        const cookieString = socket.request.headers.cookie;
-        socket.request.cookies = cookieString
-          .split(';')
-          .reduce((res, c) => {
-            const [key, val] = c.trim().split('=').map(decodeURIComponent);
-            try {
-              return Object.assign(res, { [key]: JSON.parse(val) });
-            } catch (e) {
-              return Object.assign(res, { [key]: val });
-            }
-          }, {});
-      }
-      
-      console.log('Socket Auth Attempt:');
-      console.log('Cookies present:', !!socket.request.headers.cookie);
-      
-      const token = await getToken({ 
-        req: socket.request, 
-        secret: process.env.NEXTAUTH_SECRET 
-      });
-      if (token) {
-        socket.user = token; // Attach user info to socket
+      const user = socket.handshake.auth?.session;
+      if (user) {
+        socket.user = user; // Attach user info to socket
         next();
       } else {
-        console.log('Socket Auth failed: No token found');
+        console.log('Socket Auth failed: No session provided in auth');
         next(new Error('unauthorized'));
       }
     } catch (e) {
