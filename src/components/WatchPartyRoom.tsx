@@ -206,6 +206,9 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
   }, []);
 
   useEffect(() => {
+    if (session?.user) {
+      socket.auth = { session: session.user };
+    }
     socket.connect();
 
     socket.on('connect', () => {
