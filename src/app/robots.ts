@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/profile", "/api/", "/auth/"],
     },
-    sitemap: "https://anispectra-sigma.vercel.app/sitemap.xml",
+    sitemap: "https://anispectra.uz/sitemap.xml",
   };
 }

@@ -36,7 +36,14 @@ export const metadata: Metadata = {
   },
   description:
     "Anispectra: смотрите аниме онлайн и читайте мангу бесплатно. Свежие релизы, удобный плеер, история просмотра.",
-  metadataBase: new URL("https://anispectra-sigma.vercel.app"),
+  keywords: ["аниме", "манга", "смотреть аниме", "читать мангу", "аниме онлайн", "аниме бесплатно", "anime", "manga", "anispectra", "аниспектра", "аниме на русском", "манга на русском", "новые серии аниме"],
+  authors: [{ name: "Anispectra" }],
+  creator: "Anispectra",
+  publisher: "Anispectra",
+  metadataBase: new URL("https://anispectra.uz"),
+  alternates: {
+    canonical: '/',
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -47,6 +54,9 @@ export const metadata: Metadata = {
     apple: "/anispectra-180x180.png",
   },
   openGraph: {
+    title: "Anispectra — аниме и манга",
+    description: "Anispectra: смотрите аниме онлайн и читайте мангу бесплатно. Свежие релизы, удобный плеер, история просмотра.",
+    url: "https://anispectra.uz",
     siteName: "Anispectra",
     type: "website",
     locale: "ru_RU",
@@ -54,8 +64,24 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    title: "Anispectra — аниме и манга",
+    description: "Anispectra: смотрите аниме онлайн и читайте мангу бесплатно. Свежие релизы, удобный плеер, история просмотра.",
     images: ["/og-image.png"],
-  }
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'hdYUKiHpQKzyvzF-sBnfzR_CEWnu6p9NfSJstHqZcCs',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

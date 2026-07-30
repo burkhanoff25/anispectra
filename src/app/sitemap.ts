@@ -3,7 +3,7 @@ import { AnimeService } from "@/lib/api/anime.service";
 import { MangaService } from "@/lib/api/manga.service";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://anispectra-sigma.vercel.app";
+  const baseUrl = "https://anispectra.uz";
 
   // Static pages
   const routes = [
