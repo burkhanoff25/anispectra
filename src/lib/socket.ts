@@ -4,7 +4,7 @@ let socket: Socket | undefined;
 
 export const getSocket = () => {
   if (!socket) {
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || '';
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://anispectra.onrender.com';
     socket = io(socketUrl, {
       autoConnect: false,
       withCredentials: true,

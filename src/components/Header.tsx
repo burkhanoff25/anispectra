@@ -7,7 +7,7 @@ const NAV = [
   { href: "/manga", label: "Манга" },
   { href: "/schedule", label: "Расписание" },
   { href: "/shorts", label: "Shorts" },
-  { href: "https://anispectra-sigma.vercel.app/watch-party", label: "Комната", external: true },
+  { href: "/watch-party", label: "Комната" },
   { href: "https://t.me/Anispectra_uz", label: "Telegram", external: true },
 ];
 
