@@ -143,3 +143,8 @@ model SupportReply {
 
   ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 }
+
+model SystemSetting {
+  key   String @id
+  value String
+}
