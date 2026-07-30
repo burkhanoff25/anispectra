@@ -8,6 +8,7 @@ const NAV = [
   { href: "/schedule", label: "Расписание" },
   { href: "/shorts", label: "Shorts" },
   { href: "/watch-party", label: "Комната" },
+  { href: "https://t.me/Anispectra_uz", label: "Telegram", external: true },
 ];
 
 export default function Header() {
@@ -27,6 +28,7 @@ export default function Header() {
               key={link.href}
               href={link.href}
               className="text-sm font-medium text-mist transition hover:text-accent"
+              {...(link.external ? { target: "_blank", rel: "noreferrer" } : {})}
             >
               {link.label}
             </Link>
@@ -49,7 +51,8 @@ export default function Header() {
           <Link
             key={item.href}
             href={item.href}
-            className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm text-mist hover:bg-panel2 hover:text-paper"
+            className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm hover:bg-panel2 hover:text-paper ${item.external ? 'text-accent font-medium' : 'text-mist'}`}
+            {...(item.external ? { target: "_blank", rel: "noreferrer" } : {})}
           >
             {item.label}
           </Link>
