@@ -23,7 +23,7 @@ interface ChatMessage {
 }
 
 export default function WatchPartyRoom({ roomId }: { roomId: string }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [users, setUsers] = useState<User[]>([]);
   const [hostId, setHostId] = useState<string>('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -206,6 +206,8 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
   }, []);
 
   useEffect(() => {
+    if (status === 'loading') return; // Wait until session is loaded
+
     if (session?.user) {
       socket.auth = { session: session.user };
     }
@@ -295,7 +297,7 @@ export default function WatchPartyRoom({ roomId }: { roomId: string }) {
       socket.off('chat-message');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, isHost]);
+  }, [roomId, isHost, status]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
