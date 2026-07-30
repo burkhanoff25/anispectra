@@ -22,8 +22,23 @@ export default async function HomePage() {
 
   const featuredAnimes = releases.slice(0, 5);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://anispectra.uz/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://anispectra.uz/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <div className="pt-4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <h1 className="sr-only">Anispectra — смотреть аниме и читать мангу онлайн бесплатно</h1>
 
       {/* Combined Featured Animes and Ad Banners Slider */}
