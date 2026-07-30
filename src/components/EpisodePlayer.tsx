@@ -23,17 +23,25 @@ interface EpisodePlayerProps {
   onSeekAction?: (time: number) => void;
   onEpisodeSelectAction?: (episode: AniLibertyEpisode) => void;
   currentEpisodeOverride?: AniLibertyEpisode | null;
+  initialHistory?: { episode: number; progressSeconds: number };
 }
 
 type Quality = "1080p" | "720p" | "480p";
 
 const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({ 
-  episodes, titleId, onPlayAction, onPauseAction, onSeekAction, onEpisodeSelectAction, currentEpisodeOverride 
+  episodes, titleId, onPlayAction, onPauseAction, onSeekAction, onEpisodeSelectAction, currentEpisodeOverride, initialHistory 
 }, ref) => {
-  const [currentEp, setCurrentEp] = useState<AniLibertyEpisode | null>(episodes[0] ?? null);
+  const [currentEp, setCurrentEp] = useState<AniLibertyEpisode | null>(() => {
+    if (initialHistory) {
+      const histEp = episodes.find(e => e.ordinal === initialHistory.episode);
+      if (histEp) return histEp;
+    }
+    return episodes[0] ?? null;
+  });
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
+  const isFirstLoad = useRef(true);
 
   // Player State
   const [playing, setPlaying] = useState(false);
@@ -111,7 +119,11 @@ const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({
     const fullUrl = targetUrl.startsWith("http") ? targetUrl : `https://anilibria.top${targetUrl}`;
     
     // Remember current time to restore after quality change
-    const timeToRestore = video.currentTime;
+    let timeToRestore = video.currentTime;
+    if (isFirstLoad.current && initialHistory && currentEp.ordinal === initialHistory.episode) {
+      timeToRestore = initialHistory.progressSeconds;
+      isFirstLoad.current = false;
+    }
 
     if (Hls.isSupported()) {
       if (hlsRef.current) hlsRef.current.destroy();
@@ -135,8 +147,11 @@ const EpisodePlayer = forwardRef<EpisodePlayerRef, EpisodePlayerProps>(({
       });
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = fullUrl;
-      video.currentTime = timeToRestore;
-      if (playing) video.play().catch(() => setPlaying(false));
+      video.addEventListener("loadedmetadata", function onLoaded() {
+        if (timeToRestore > 0) video.currentTime = timeToRestore;
+        if (playing) video.play().catch(() => setPlaying(false));
+        video.removeEventListener("loadedmetadata", onLoaded);
+      });
     }
 
     return () => {

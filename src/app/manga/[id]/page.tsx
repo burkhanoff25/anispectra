@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import DisqusComments from "@/components/DisqusComments";
 import Image from "next/image";
 import Link from "next/link";
 import { MangaService } from "@/lib/api/manga.service";
@@ -79,6 +80,12 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
           </div>
         </div>
       </div>
+      
+      <DisqusComments 
+        url={`https://anispectra.uz/manga/${params.id}`}
+        identifier={`manga-${params.id}`}
+        title={title}
+      />
     </div>
   );
 }

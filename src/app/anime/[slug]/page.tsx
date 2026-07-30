@@ -1,11 +1,17 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
+import DisqusComments from "@/components/DisqusComments";
 import FilmDivider from "@/components/FilmDivider";
 import { AnimeService } from "@/lib/api/anime.service";
 import type { Metadata } from "next";
 import FavoriteButton from "@/components/FavoriteButton";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { HistoryService } from "@/server/history/HistoryService";
+import { cookies } from "next/headers";
+import { UserService } from "@/lib/api/user.service";
 
 const EpisodePlayer = dynamic(() => import("@/components/EpisodePlayer"), {
   ssr: false,
@@ -39,6 +45,23 @@ export default async function AnimeDetailsPage({ params }: { params: { slug: str
   const title = AnimeService.displayName(release);
   const img = AnimeService.posterUrl(release.poster?.src);
   const episodes = release.episodes ?? [];
+
+  const session = await getServerSession(authOptions);
+  const cookieStore = cookies();
+  const cookieStr = cookieStore.getAll().map(c => `${c.name}=${c.value}`).join('; ');
+  const aniProfile = await UserService.getProfile(cookieStr).catch(() => null);
+  
+  const userId = session?.user?.id;
+  const aniLibertyId = aniProfile?.id ? String(aniProfile.id) : undefined;
+  
+  let initialHistory = undefined;
+  if (userId || aniLibertyId) {
+    const history = await HistoryService.getAnimeHistory({ userId, aniLibertyId }, 100);
+    const titleHist = history.find(h => h.titleId === String(release.id));
+    if (titleHist) {
+      initialHistory = { episode: titleHist.episode, progressSeconds: titleHist.progressSeconds };
+    }
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -105,8 +128,14 @@ export default async function AnimeDetailsPage({ params }: { params: { slug: str
 
         <div className="mt-10">
           <h2 className="mb-4 font-display text-xl font-bold text-paper">Смотреть онлайн</h2>
-          <EpisodePlayer titleId={String(release.id)} episodes={episodes} />
+          <EpisodePlayer titleId={String(release.id)} episodes={episodes} initialHistory={initialHistory} />
         </div>
+
+        <DisqusComments 
+          url={`https://anispectra.uz/anime/${params.slug}`}
+          identifier={`anime-${release.id}`}
+          title={title}
+        />
       </div>
       <FilmDivider />
     </div>
