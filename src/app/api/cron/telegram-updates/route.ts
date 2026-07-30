@@ -55,12 +55,12 @@ export async function GET(req: NextRequest) {
       const url = `https://anispectra.uz/anime/${release.alias || release.id}`;
       const img = AnimeService.posterUrl(release.poster?.src);
       
-      let text = `🔥 <b>Yangi qism: ${title}</b>\n\n`;
+      let text = `🔥 <b>Новая серия: ${title}</b>\n\n`;
       if (release.description) {
         text += `${release.description.slice(0, 150)}...\n\n`;
       }
-      text += `👉 <a href="${url}">Saytda ko'rish</a>\n\n`;
-      text += `💬 <a href="https://t.me/Anispectra_uz">@Anispectra_uz</a> | 🛠 <a href="https://t.me/anispectra_support_bot">Yordam Bot</a>`;
+      text += `👉 <a href="${url}">Смотреть на сайте</a>\n\n`;
+      text += `💬 <a href="https://t.me/Anispectra_uz">@Anispectra_uz</a> | 🛠 <a href="https://t.me/anispectra_support_bot">Бот поддержки</a>`;
 
       const telegramApiUrl = img 
         ? `https://api.telegram.org/bot${botToken}/sendPhoto` 

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     if (message) {
       text += `${message}\n\n`;
     }
-    text += `👉 <a href="${url}">Ko'rish uchun bosing</a>`;
+    text += `👉 <a href="${url}">Смотреть на сайте</a>`;
 
     // Send Photo with caption
     const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendPhoto`;
