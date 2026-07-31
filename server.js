@@ -8,8 +8,20 @@ const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOSTNAME || '0.0.0.0';
 const port = process.env.PORT || 3000;
 
+const { spawn } = require('child_process');
+
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
+
+// Agar TELEGRAM_STRING_SESSION kiritilgan bo'lsa, botni avtomatik ishga tushiramiz
+if (process.env.TELEGRAM_STRING_SESSION) {
+  console.log('Starting Telegram Bot...');
+  const botProcess = spawn('npm', ['run', 'start:bot'], { stdio: 'inherit', shell: true });
+  
+  botProcess.on('error', (err) => {
+    console.error('Failed to start Telegram Bot:', err);
+  });
+}
 
 app.prepare().then(() => {
   const httpServer = createServer((req, res) => {
