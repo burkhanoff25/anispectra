@@ -21,7 +21,7 @@ const body = Manrope({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#050208",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -51,7 +51,16 @@ export const metadata: Metadata = {
     title: "Anispectra",
   },
   icons: {
-    apple: "/anispectra-180x180.png",
+    icon: [
+      { url: "/icons/favicon.ico", sizes: "any" },
+      { url: "/icons/icon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/icons/icon-32x32.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png" },
+      { url: "/icons/icon-152x152.png", sizes: "152x152" },
+      { url: "/icons/icon-180x180.png", sizes: "180x180" },
+    ],
   },
   openGraph: {
     title: "Anispectra — аниме и манга",
