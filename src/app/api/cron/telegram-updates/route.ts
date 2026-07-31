@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AnimeService } from "@/lib/api/anime.service";
-import { prisma } from "@/server/db/prisma";
+import { prisma } from "@/server/db/client";
 
 export async function GET(req: NextRequest) {
   try {
