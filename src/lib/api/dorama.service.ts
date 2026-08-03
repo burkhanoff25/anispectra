@@ -38,7 +38,7 @@ export class DoramaService {
 
     const data = await HttpClient.fetch<DoramaCatalogResponse>(
       `${TMDB_BASE}/discover/tv?${params}`,
-      { headers: this.HEADERS, next: { revalidate: 3600 } }
+      { headers: this.HEADERS, next: { revalidate: 300 } }
     );
     return data ?? { page: 1, results: [], total_pages: 0, total_results: 0 };
   }
@@ -55,7 +55,7 @@ export class DoramaService {
 
     const data = await HttpClient.fetch<DoramaCatalogResponse>(
       `${TMDB_BASE}/discover/tv?${params}`,
-      { headers: this.HEADERS, next: { revalidate: 3600 } }
+      { headers: this.HEADERS, next: { revalidate: 300 } }
     );
     return data ?? { page: 1, results: [], total_pages: 0, total_results: 0 };
   }
@@ -73,7 +73,7 @@ export class DoramaService {
 
     const data = await HttpClient.fetch<DoramaCatalogResponse>(
       `${TMDB_BASE}/discover/tv?${params}`,
-      { headers: this.HEADERS, next: { revalidate: 3600 } }
+      { headers: this.HEADERS, next: { revalidate: 300 } }
     );
     return data ?? { page: 1, results: [], total_pages: 0, total_results: 0 };
   }
@@ -101,7 +101,7 @@ export class DoramaService {
   static async getById(id: number): Promise<DoramaItem | null> {
     return HttpClient.fetch<DoramaItem>(
       `${TMDB_BASE}/tv/${id}?language=ru-RU`,
-      { headers: this.HEADERS, next: { revalidate: 3600 } }
+      { headers: this.HEADERS, next: { revalidate: 300 } }
     );
   }
 
