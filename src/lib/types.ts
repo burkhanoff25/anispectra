@@ -122,3 +122,37 @@ export interface MangaDexChapter {
     publishAt: string;
   };
 }
+
+// --- TMDB (Дорамы) ---
+export interface DoramaItem {
+  id: number;
+  name: string;
+  original_name: string;
+  overview: string | null;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  first_air_date: string | null;
+  vote_average: number;
+  vote_count: number;
+  origin_country: string[];
+  genre_ids?: number[];
+  genres?: { id: number; name: string }[];
+  number_of_seasons?: number;
+  number_of_episodes?: number;
+  status?: string;
+  tagline?: string | null;
+  networks?: { id: number; name: string; logo_path: string | null }[];
+}
+
+export interface DoramaCatalogResponse {
+  page: number;
+  results: DoramaItem[];
+  total_pages: number;
+  total_results: number;
+}
+
+export interface DoramaGenre {
+  id: number;
+  name: string;
+}
+

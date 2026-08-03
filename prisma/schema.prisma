@@ -48,6 +48,7 @@ model User {
   mangaHistory  MangaHistory[]
   animeFavorites AnimeFavorite[]
   mangaFavorites MangaFavorite[]
+  doramaFavorites DoramaFavorite[]
   supportTickets SupportTicket[]
 }
 
@@ -115,6 +116,20 @@ model MangaFavorite {
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, aniLibertyId, mangaId])
+}
+
+model DoramaFavorite {
+  id              String   @id @default(cuid())
+  userId          String?
+  aniLibertyId    String?
+  doramaId        String
+  titleName       String
+  imageSrc        String?
+  timestamp       DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, aniLibertyId, doramaId])
 }
 
 model OtpAttempt {

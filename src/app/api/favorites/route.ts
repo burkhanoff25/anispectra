@@ -58,6 +58,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ isFavorited: !!fav });
     }
 
+    if (type === "dorama") {
+      const fav = await prisma.doramaFavorite.findFirst({
+        where: {
+          doramaId: id,
+          OR: [
+            ...(userId ? [{ userId }] : []),
+            ...(aniLibertyId ? [{ aniLibertyId }] : []),
+          ],
+        },
+      });
+      return NextResponse.json({ isFavorited: !!fav });
+    }
+
     return NextResponse.json({ error: "Invalid type" }, { status: 400 });
   } catch (error) {
     console.error("[Favorites GET Error]:", error);
@@ -125,6 +138,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
+    if (type === "dorama") {
+      const existing = await prisma.doramaFavorite.findFirst({
+        where: {
+          doramaId: id,
+          userId: userId || null,
+          aniLibertyId: aniLibertyId || null,
+        },
+      });
+
+      if (!existing) {
+        await prisma.doramaFavorite.create({
+          data: {
+            userId: userId || null,
+            aniLibertyId: aniLibertyId || null,
+            doramaId: id,
+            titleName,
+            imageSrc,
+          },
+        });
+      }
+      return NextResponse.json({ success: true });
+    }
+
     return NextResponse.json({ error: "Invalid type" }, { status: 400 });
   } catch (error) {
     console.error("[Favorites POST Error]:", error);
@@ -161,6 +197,17 @@ export async function DELETE(req: NextRequest) {
       await prisma.mangaFavorite.deleteMany({
         where: {
           mangaId: id,
+          userId: userId || null,
+          aniLibertyId: aniLibertyId || null,
+        },
+      });
+      return NextResponse.json({ success: true });
+    }
+
+    if (type === "dorama") {
+      await prisma.doramaFavorite.deleteMany({
+        where: {
+          doramaId: id,
           userId: userId || null,
           aniLibertyId: aniLibertyId || null,
         },

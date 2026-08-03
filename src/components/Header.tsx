@@ -4,6 +4,7 @@ import SearchBox from "./SearchBox";
 
 const NAV = [
   { href: "/anime", label: "Аниме" },
+  { href: "/dorama", label: "Дорамы" },
   { href: "/manga", label: "Манга" },
   { href: "/schedule", label: "Расписание" },
   { href: "/shorts", label: "Shorts" },

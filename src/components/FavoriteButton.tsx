@@ -5,7 +5,7 @@ import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface FavoriteButtonProps {
-  type: "anime" | "manga";
+  type: "anime" | "manga" | "dorama";
   id: string;
   titleName: string;
   imageSrc: string | null;
