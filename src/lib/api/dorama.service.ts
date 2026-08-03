@@ -6,7 +6,7 @@ const TMDB_IMG = "https://image.tmdb.org/t/p";
 
 // Koreya, Yaponiya, Xitoy dramalari
 const DORAMA_COUNTRIES = "KR|JP|CN|TW";
-const DORAMA_LANGUAGES = "ko,ja,zh";
+const DORAMA_LANGUAGES = "ko|ja|zh";
 
 export class DoramaService {
   private static get HEADERS(): Record<string, string> {
