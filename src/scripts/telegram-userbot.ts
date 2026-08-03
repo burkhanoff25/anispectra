@@ -1,3 +1,4 @@
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any, prefer-const, @typescript-eslint/ban-ts-comment */
 import { TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions/index.js";
 // @ts-ignore

@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
         ? `https://api.telegram.org/bot${botToken}/sendPhoto` 
         : `https://api.telegram.org/bot${botToken}/sendMessage`;
       
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         chat_id: chatId,
         parse_mode: "HTML",
       };
