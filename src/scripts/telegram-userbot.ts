@@ -44,9 +44,9 @@ function buildCaption(originalCaption: string): string {
 
   return (
     (cleaned ? `${cleaned}\n\n` : "") +
-    `🌐 <a href="https://anispectra.uz">anispectra.uz</a> — barcha anime bir joyda\n` +
+    `🌐 <a href="https://anispectra.uz">anispectra.uz</a> — все аниме в одном месте\n` +
     `💬 <a href="https://t.me/Anispectra_uz">@Anispectra_uz</a> | ` +
-    `🛠 <a href="https://t.me/anispectra_support_bot">Qo'llab-quvvatlash</a>`
+    `🛠 <a href="https://t.me/anispectra_support_bot">Поддержка</a>`
   );
 }
 
