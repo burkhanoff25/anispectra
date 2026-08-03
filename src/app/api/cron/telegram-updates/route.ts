@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { AnimeService } from "@/lib/api/anime.service";
 import { prisma } from "@/server/db/client";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     // 1. Verify Vercel Cron Request
