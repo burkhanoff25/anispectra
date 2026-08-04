@@ -104,6 +104,25 @@ export class DoramaService {
     return data ?? { page: 1, results: [], total_pages: 0, total_results: 0 };
   }
 
+  static async getCatalog({ page = 1, genre }: { page?: number; genre?: number } = {}): Promise<DoramaCatalogResponse> {
+    const params = new URLSearchParams({
+      language: "ru-RU",
+      sort_by: "popularity.desc",
+      page: String(page),
+      with_origin_country: DORAMA_COUNTRIES,
+      with_original_language: DORAMA_LANGUAGES,
+      without_genres: EXCLUDE_GENRES,
+      "vote_count.gte": "30",
+    });
+    if (genre) params.set("with_genres", String(genre));
+
+    const data = await HttpClient.fetch<DoramaCatalogResponse>(
+      `${TMDB_BASE}/discover/tv?${params}`,
+      { headers: this.HEADERS, next: { revalidate: 300 } }
+    );
+    return data ?? { page: 1, results: [], total_pages: 0, total_results: 0 };
+  }
+
   static async getById(id: number): Promise<DoramaItem | null> {
     return HttpClient.fetch<DoramaItem>(
       `${TMDB_BASE}/tv/${id}?language=ru-RU`,

@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import EmptyState from "@/components/EmptyState";
 import { DoramaService } from "@/lib/api/dorama.service";
 import type { Metadata } from "next";
 import type { DoramaItem } from "@/lib/types";
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Дорамы — Anispectra",
@@ -63,84 +64,87 @@ function DoramaCard({ item }: { item: DoramaItem }) {
   );
 }
 
-export default async function DoramaPage() {
-  const [popular, topRated, newDoramas] = await Promise.all([
-    DoramaService.getPopular(1),
-    DoramaService.getTopRated(1),
-    DoramaService.getNew(1),
+export default async function DoramaPage({
+  searchParams,
+}: {
+  searchParams: { page?: string; genre?: string };
+}) {
+  const page = Number(searchParams.page ?? 1) || 1;
+  const genre = searchParams.genre ? Number(searchParams.genre) : undefined;
+
+  const [catalog, genres] = await Promise.all([
+    DoramaService.getCatalog({ page, genre }),
+    DoramaService.getGenres(),
   ]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      {/* Hero */}
-      <div className="mb-10">
-        <h1 className="font-display text-4xl font-black text-paper sm:text-5xl">
-          🎭 Дорамы
-        </h1>
-        <p className="mt-3 max-w-2xl text-mist">
-          Корейские, японские и китайские сериалы на русском языке. Субтитры и
-          дубляж.
-        </p>
-      </div>
+      <h1 className="font-display text-3xl font-black text-paper">Каталог дорам</h1>
+      <p className="mt-2 text-sm text-mist">
+        Корейские, японские и китайские сериалы на русском языке.
+      </p>
 
-      {/* Filter tabs */}
-      <div className="mb-8 flex flex-wrap gap-3">
-        {[
-          { label: "🇰🇷 Корея", href: "/dorama?country=KR" },
-          { label: "🇯🇵 Япония", href: "/dorama?country=JP" },
-          { label: "🇨🇳 Китай", href: "/dorama?country=CN" },
-        ].map((tab) => (
+      {/* Genre filter */}
+      {genres.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-2">
           <Link
-            key={tab.href}
-            href={tab.href}
-            className="rounded-full border border-line px-4 py-2 text-sm text-mist transition hover:border-accent hover:text-accent"
+            href="/dorama"
+            className={`rounded-full px-3 py-1.5 text-sm transition ${
+              !genre
+                ? "bg-violet text-white"
+                : "border border-line text-mist hover:border-accent hover:text-accent"
+            }`}
           >
-            {tab.label}
+            Все жанры
           </Link>
-        ))}
-      </div>
-
-      {/* Popular */}
-      <section className="mb-12">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-display text-2xl font-bold text-paper">
-            🔥 Популярные
-          </h2>
+          {genres.map((g) => (
+            <Link
+              key={g.id}
+              href={`/dorama?genre=${g.id}`}
+              className={`rounded-full px-3 py-1.5 text-sm transition ${
+                genre === g.id
+                  ? "bg-violet text-white"
+                  : "border border-line text-mist hover:border-accent hover:text-accent"
+              }`}
+            >
+              {g.name}
+            </Link>
+          ))}
         </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {popular.results.slice(0, 12).map((item) => (
+      )}
+
+      {/* Grid */}
+      {catalog.results.length === 0 ? (
+        <EmptyState
+          title="Ничего не найдено"
+          hint="Попробуйте выбрать другой жанр."
+        />
+      ) : (
+        <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {catalog.results.map((item) => (
             <DoramaCard key={item.id} item={item} />
           ))}
         </div>
-      </section>
+      )}
 
-      {/* Top Rated */}
-      <section className="mb-12">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-display text-2xl font-bold text-paper">
-            ⭐ Топ рейтинга
-          </h2>
-        </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {topRated.results.slice(0, 12).map((item) => (
-            <DoramaCard key={item.id} item={item} />
+      {/* Pagination */}
+      {catalog.total_pages > 1 && (
+        <div className="mt-10 flex justify-center gap-2">
+          {Array.from({ length: Math.min(catalog.total_pages, 10) }).map((_, i) => (
+            <Link
+              key={i}
+              href={`/dorama?page=${i + 1}${genre ? `&genre=${genre}` : ""}`}
+              className={`h-9 w-9 rounded-full text-center text-sm leading-9 transition ${
+                page === i + 1
+                  ? "bg-violet text-white"
+                  : "border border-line text-mist hover:border-accent hover:text-accent"
+              }`}
+            >
+              {i + 1}
+            </Link>
           ))}
         </div>
-      </section>
-
-      {/* New */}
-      <section className="mb-12">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-display text-2xl font-bold text-paper">
-            🆕 Новинки
-          </h2>
-        </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {newDoramas.results.slice(0, 12).map((item) => (
-            <DoramaCard key={item.id} item={item} />
-          ))}
-        </div>
-      </section>
+      )}
     </div>
   );
 }
