@@ -4,9 +4,11 @@ import { HttpClient } from "./core/HttpClient";
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_IMG = "https://image.tmdb.org/t/p";
 
-// Koreya, Yaponiya, Xitoy dramalari
+// Koreya, Yaponiya, Xitoy dramalari (animesiz)
 const DORAMA_COUNTRIES = "KR|JP|CN|TW";
 const DORAMA_LANGUAGES = "ko|ja|zh";
+// TMDB genre id=16 = Animation (anime) — buni exclude qilamiz
+const EXCLUDE_GENRES = "16";
 
 export class DoramaService {
   private static get HEADERS(): Record<string, string> {
@@ -33,6 +35,7 @@ export class DoramaService {
       page: String(page),
       with_origin_country: DORAMA_COUNTRIES,
       with_original_language: DORAMA_LANGUAGES,
+      without_genres: EXCLUDE_GENRES,
       "vote_count.gte": "50",
     });
 
@@ -50,6 +53,7 @@ export class DoramaService {
       page: String(page),
       with_origin_country: DORAMA_COUNTRIES,
       with_original_language: DORAMA_LANGUAGES,
+      without_genres: EXCLUDE_GENRES,
       "vote_count.gte": "200",
     });
 
@@ -67,6 +71,7 @@ export class DoramaService {
       page: String(page),
       with_origin_country: DORAMA_COUNTRIES,
       with_original_language: DORAMA_LANGUAGES,
+      without_genres: EXCLUDE_GENRES,
       "vote_count.gte": "10",
       "first_air_date.lte": new Date().toISOString().split("T")[0],
     });
@@ -89,10 +94,11 @@ export class DoramaService {
       `${TMDB_BASE}/search/tv?${params}`,
       { headers: this.HEADERS, next: { revalidate: 300 } }
     );
-    // Filter to Asian dramas only in search
+    // Filter to Asian dramas only (no anime — exclude Animation genre id=16)
     if (data?.results) {
       data.results = data.results.filter((item) =>
-        item.origin_country?.some((c) => ["KR", "JP", "CN", "TW"].includes(c))
+        item.origin_country?.some((c) => ["KR", "JP", "CN", "TW"].includes(c)) &&
+        !item.genre_ids?.includes(16)
       );
     }
     return data ?? { page: 1, results: [], total_pages: 0, total_results: 0 };
