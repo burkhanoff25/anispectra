@@ -27,7 +27,8 @@ export class PlayerService {
         return data.results[0];
       }
       return null;
-    } catch {
+    } catch (err) {
+      console.error(`[Kodik API Error] Anime qidirishda xatolik (Title: "${title}"):`, err);
       return null;
     }
   }

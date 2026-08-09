@@ -58,7 +58,7 @@ ${message}
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Telegram API Error:', errorData);
+      console.error(`[TELEGRAM_ERROR] operation=sendMessage status=${response.status} url=/sendMessage message=${errorData}`);
       return NextResponse.json({ error: 'Failed to send message to Telegram' }, { status: 500 });
     }
 
@@ -74,7 +74,7 @@ ${message}
 
     return NextResponse.json({ success: true, ticketId: ticket.id });
   } catch (error) {
-    console.error('Contact API Error:', error);
+    console.error(`[API_ERROR] operation=contactRoute status=500 url=/api/contact message=${error instanceof Error ? error.message : "Unknown error"}`);
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
   }
 }

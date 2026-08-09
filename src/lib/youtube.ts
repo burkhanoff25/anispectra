@@ -92,7 +92,7 @@ export async function getYoutubeShorts(): Promise<YoutubeShort[]> {
 
     return shorts;
   } catch (error) {
-    console.error("Error fetching YouTube Shorts:", error);
+    console.error(`[YOUTUBE_ERROR] operation=getYoutubeShorts status=unknown url=/channels message=${error instanceof Error ? error.message : "Unknown error"}`);
     return [];
   }
 }

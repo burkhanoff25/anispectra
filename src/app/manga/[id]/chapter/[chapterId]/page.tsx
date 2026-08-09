@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: { params: { id: string; chapt
         description: `Читать главу ${chapterNum} манги "${title}" онлайн на русском бесплатно.`,
       }
     };
-  } catch {
+  } catch (err) {
+    console.error(`[MANGADEX_ERROR] operation=generateMetadata status=unknown url=/at-home/server/${params.chapterId} message=Metadata generation failed:`, err);
     return { title: "Читать мангу" };
   }
 }

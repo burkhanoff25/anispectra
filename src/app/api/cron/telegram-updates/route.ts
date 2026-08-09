@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
     if (!botToken || !chatId) {
-      console.error("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID in cron");
+      console.error("[CRON_ERROR] operation=telegramUpdates status=500 url=/api/cron/telegram-updates message=Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID in cron");
       return NextResponse.json({ error: "Configuration Error" }, { status: 500 });
     }
 
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
 
       if (!response.ok) {
         const errorData = await response.text();
-        console.error(`Failed to send telegram message for ${title}:`, errorData);
+        console.error(`[TELEGRAM_ERROR] operation=sendNotification status=${response.status} url=${img ? '/sendPhoto' : '/sendMessage'} message=${errorData}`);
         // Continue to the next one, but this one failed
       }
       
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Cron Telegram Error:", error);
+    console.error(`[API_ERROR] operation=cronTelegramUpdates status=500 url=/api/cron/telegram-updates message=${error instanceof Error ? error.message : "Unknown error"}`);
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
