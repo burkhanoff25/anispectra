@@ -7,7 +7,7 @@ export class PlayerService {
   }
 
   private static get TOKEN() {
-    return process.env.KODIK_API_TOKEN ?? process.env.KODIK_API_KEY ?? "6e29fa803d424814677ac426ed7846bc";
+    return process.env.KODIK_API_TOKEN ?? process.env.KODIK_API_KEY ?? "";
   }
 
   // Anime uchun: title bo'yicha birinchi natija
@@ -45,14 +45,16 @@ export class PlayerService {
         search.set("token", this.TOKEN);
         search.set("title", q);
         search.set("limit", "20"); // Ko'proq natija olaylik
-        search.set("types", "foreign-serial,foreign-movie");
+        // Dorama va animatsiyalarni o'tkazib yubormaslik uchun barcha kerakli tiplarni kiritamiz
+        search.set("types", "anime,anime-serial,foreign-serial,foreign-movie,cartoon-serial,cartoon-movie");
         search.set("with_material_data", "true");
 
         const data = await HttpClient.fetch<{ results: KodikResultItem[] }>(
           `${this.BASE}/search?${search.toString()}`
         );
         return data?.results ?? [];
-      } catch {
+      } catch (err) {
+        console.error(`[Kodik API Error] Dorama/Anime qidirishda xatolik yuz berdi (Query: "${q}"):`, err);
         return [];
       }
     };

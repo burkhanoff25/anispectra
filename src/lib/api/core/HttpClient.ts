@@ -31,6 +31,14 @@ export class HttpClient {
         clearTimeout(id);
 
         if (!response.ok) {
+          const maskedUrl = url.replace(/token=[^&]+/, "token=***").replace(/key=[^&]+/, "key=***");
+          
+          if (response.status === 401 || response.status === 403) {
+            console.error(`[HttpClient Error] Token invalid/expired for: ${maskedUrl} (Status: ${response.status})`);
+          } else {
+            console.error(`[HttpClient Error] HTTP Error ${response.status} for: ${maskedUrl}`);
+          }
+
           if (response.status >= 500 && attempt < retries) {
             throw new Error(`Server Error: ${response.status}`);
           }
@@ -45,13 +53,18 @@ export class HttpClient {
         if (!text) return null;
         try {
           return JSON.parse(text) as T;
-        } catch {
+        } catch (parseErr) {
+          const maskedUrl = url.replace(/token=[^&]+/, "token=***").replace(/key=[^&]+/, "key=***");
+          console.error(`[HttpClient Error] JSON parse failed for ${maskedUrl}:`, parseErr);
           return null;
         }
       } catch (err: unknown) {
         clearTimeout(id);
         const isAbort = err instanceof Error && err.name === "AbortError";
+        
         if (attempt >= retries || (!isAbort && (err instanceof TypeError))) {
+          const maskedUrl = url.replace(/token=[^&]+/, "token=***").replace(/key=[^&]+/, "key=***");
+          console.error(`[HttpClient Error] Network/Fetch error for ${maskedUrl}:`, err);
           // Allow retries for AbortError (timeout) or custom Server Error thrown above.
           // Network errors (TypeError) or out of retries -> return null to avoid crashing.
           return null;
