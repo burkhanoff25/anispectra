@@ -32,19 +32,19 @@ export class PlayerService {
     }
   }
 
-  // Dorama uchun: barcha natijalar (dublyaj tanlash imkoni)
+  // Dorama uchun: barcha natijalar
   static async findDorama(
     title: string,
     originalTitle?: string
-  ): Promise<KodikResultItem | null> {
-    if (!this.TOKEN) return null;
+  ): Promise<KodikResultItem[]> {
+    if (!this.TOKEN) return [];
 
     const trySearch = async (q: string): Promise<KodikResultItem[]> => {
       try {
         const search = new URLSearchParams();
         search.set("token", this.TOKEN);
         search.set("title", q);
-        search.set("limit", "10");
+        search.set("limit", "20"); // Ko'proq natija olaylik
         search.set("types", "foreign-serial,foreign-movie");
         search.set("with_material_data", "true");
 
@@ -57,28 +57,38 @@ export class PlayerService {
       }
     };
 
-    // 1. Rus nomda qidirish
     let results = await trySearch(title);
 
-    // 2. Agar topilmasa, original nomda qidirish
     if (results.length === 0 && originalTitle) {
       results = await trySearch(originalTitle);
     }
 
-    if (results.length === 0) return null;
+    // Noyob tarjimalarni ajratib olish (ba'zida kodik bir xil tarjimani turli sifatlarda ikki marta beradi)
+    const uniqueResults = [];
+    const seenTranslations = new Set<string>();
 
-    // Ozvuchka prioriteti: rus dublyaj > subtitr > birinchi natija
-    const withRusDub = results.find(
-      (r) =>
-        r.translation?.type === "voice" &&
-        (r.translation?.title?.toLowerCase().includes("рус") ||
-          r.translation?.title?.toLowerCase().includes("дублир"))
-    );
-    const withSubs = results.find(
-      (r) =>
-        r.translation?.type === "subtitles"
-    );
+    for (const item of results) {
+      const transId = item.translation?.id ? String(item.translation.id) : "original";
+      if (!seenTranslations.has(transId)) {
+        seenTranslations.add(transId);
+        uniqueResults.push(item);
+      }
+    }
 
-    return withRusDub ?? withSubs ?? results[0];
+    // Softbox ni birinchi o'ringa, keyin boshqa rus dublyajlarini qo'yish
+    uniqueResults.sort((a, b) => {
+      const aTitle = a.translation?.title?.toLowerCase() || "";
+      const bTitle = b.translation?.title?.toLowerCase() || "";
+      
+      if (aTitle.includes("softbox")) return -1;
+      if (bTitle.includes("softbox")) return 1;
+      
+      if (aTitle.includes("рус") && !bTitle.includes("рус")) return -1;
+      if (!aTitle.includes("рус") && bTitle.includes("рус")) return 1;
+
+      return 0;
+    });
+
+    return uniqueResults;
   }
 }

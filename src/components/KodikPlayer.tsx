@@ -1,35 +1,69 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import type { KodikResultItem } from "@/lib/types";
 import { normalizePlayerLink } from "@/lib/utils";
 
-export default function KodikPlayer({ item }: { item: KodikResultItem }) {
-  const seasonKeys = useMemo(() => Object.keys(item.seasons ?? {}), [item.seasons]);
+export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
+  const [selectedTransIdx, setSelectedTransIdx] = useState(0);
+  const item = items[selectedTransIdx];
+
+  const seasonKeys = useMemo(() => Object.keys(item?.seasons ?? {}), [item?.seasons]);
   const [season, setSeason] = useState(seasonKeys[0] ?? "");
   const episodeKeys = useMemo(
-    () => Object.keys(item.seasons?.[season]?.episodes ?? {}),
-    [item.seasons, season]
+    () => Object.keys(item?.seasons?.[season]?.episodes ?? {}),
+    [item?.seasons, season]
   );
   const [episode, setEpisode] = useState(episodeKeys[0] ?? "");
 
+  // Ovoz (tarjima) o'zgarganda 1-fasl va 1-seriyaga qaytarish
+  useEffect(() => {
+    const sKeys = Object.keys(items[selectedTransIdx]?.seasons ?? {});
+    setSeason(sKeys[0] ?? "");
+  }, [selectedTransIdx, items]);
+
+  useEffect(() => {
+    const eKeys = Object.keys(item?.seasons?.[season]?.episodes ?? {});
+    setEpisode(eKeys[0] ?? "");
+  }, [season, item]);
+
   const [iframeError, setIframeError] = useState(false);
+
+  if (!item) {
+    return (
+      <div className="flex aspect-video items-center justify-center rounded-2xl border border-line bg-panel text-mist">
+        Плеер недоступен
+      </div>
+    );
+  }
 
   const link =
     item.seasons?.[season]?.episodes?.[episode] ??
     item.seasons?.[season]?.link ??
     item.link;
 
-  if (!link) {
-    return (
-      <div className="flex aspect-video items-center justify-center rounded-2xl border border-line bg-panel text-mist">
-        Плеер недоступен для этой дорамы
-      </div>
-    );
-  }
-
   return (
     <div>
+      {/* Tarjimalar / Ovozlar ro'yxati */}
+      {items.length > 1 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {items.map((it, idx) => (
+            <button
+              key={idx}
+              onClick={() => setSelectedTransIdx(idx)}
+              className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
+                idx === selectedTransIdx
+                  ? "bg-violet text-white"
+                  : "border border-line bg-panel text-mist hover:text-white"
+              }`}
+            >
+              {it.translation?.title || "Оригинал"}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Player (Iframe) */}
       <div className="relative aspect-video overflow-hidden rounded-2xl border border-line bg-black shadow-glow">
         {iframeError ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-panel text-center px-4">
@@ -42,17 +76,24 @@ export default function KodikPlayer({ item }: { item: KodikResultItem }) {
             </button>
           </div>
         ) : (
-          <iframe
-            key={link}
-            src={normalizePlayerLink(link)}
-            className="h-full w-full"
-            allow="autoplay; fullscreen; encrypted-media"
-            allowFullScreen
-            onError={() => setIframeError(true)}
-          />
+          link ? (
+            <iframe
+              key={link}
+              src={normalizePlayerLink(link)}
+              className="h-full w-full"
+              allow="autoplay; fullscreen; encrypted-media"
+              allowFullScreen
+              onError={() => setIframeError(true)}
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-mist">
+              Видео не найдено
+            </div>
+          )
         )}
       </div>
 
+      {/* Fasl va Seriyalar ro'yxati */}
       {(seasonKeys.length > 1 || episodeKeys.length > 1) && (
         <div className="mt-4 flex flex-wrap gap-4">
           {seasonKeys.length > 1 && (
@@ -60,10 +101,7 @@ export default function KodikPlayer({ item }: { item: KodikResultItem }) {
               {seasonKeys.map((s) => (
                 <button
                   key={s}
-                  onClick={() => {
-                    setSeason(s);
-                    setEpisode(Object.keys(item.seasons?.[s]?.episodes ?? {})[0] ?? "");
-                  }}
+                  onClick={() => setSeason(s)}
                   className={`rounded-full px-3 py-1.5 text-sm font-medium ${
                     s === season ? "bg-violet text-white" : "border border-line bg-panel text-mist"
                   }`}

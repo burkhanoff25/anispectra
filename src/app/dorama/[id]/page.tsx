@@ -57,7 +57,7 @@ export default async function DoramaDetailPage({
   const rating = dorama.vote_average ? dorama.vote_average.toFixed(1) : null;
 
   // Kodik da video qidirish
-  const kodikItem = await PlayerService.findDorama(
+  const kodikItems = await PlayerService.findDorama(
     title,
     dorama.original_name
   );
@@ -225,8 +225,8 @@ export default async function DoramaDetailPage({
             📺 Смотреть онлайн
           </h2>
 
-          {kodikItem ? (
-            <KodikPlayer item={kodikItem} />
+          {kodikItems && kodikItems.length > 0 ? (
+            <KodikPlayer items={kodikItems} />
           ) : (
             <div className="flex aspect-video items-center justify-center rounded-2xl border border-line bg-panel">
               <div className="text-center text-mist">
