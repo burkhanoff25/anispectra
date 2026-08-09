@@ -7,7 +7,7 @@ export class PlayerService {
   }
 
   private static get TOKEN() {
-    return process.env.KODIK_API_TOKEN ?? "";
+    return process.env.KODIK_API_TOKEN ?? process.env.KODIK_API_KEY ?? "";
   }
 
   // Anime uchun: title bo'yicha birinchi natija
