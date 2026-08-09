@@ -28,16 +28,21 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Video streams and API calls should bypass cache
+  // Faqat GET so'rovlarni ushlash
+  if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+  // Yandex, Google Analytics va boshqa tashqi xizmatlar so'rovlarini o'tkazib yuborish
+  if (url.origin !== location.origin) return;
+
+  // Video va API so'rovlarni keshlamaslik
   if (event.request.url.includes('/api/') || event.request.url.includes('video') || event.request.url.includes('stream')) {
-    return; // default fetch behavior
+    return; 
   }
 
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request).catch(() => {
-        // Fallback for failed fetches
-      });
+      return response || fetch(event.request);
     })
   );
 });
