@@ -31,7 +31,7 @@ export default function DisqusComments({ url, identifier, title }: DisqusComment
     };
 
     // Replace 'anispectra' with the user's actual disqus shortname later
-    const shortname = process.env.NEXT_PUBLIC_DISQUS_SHORTNAME || "www-anispectra-uz";
+    const shortname = process.env.NEXT_PUBLIC_DISQUS_SHORTNAME || "anispectra-uz";
     const script = document.createElement("script");
     script.src = `https://${shortname}.disqus.com/embed.js`;
     script.setAttribute("data-timestamp", new Date().getTime().toString());
