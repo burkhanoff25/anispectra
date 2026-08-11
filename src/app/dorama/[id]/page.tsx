@@ -57,10 +57,11 @@ export default async function DoramaDetailPage({
   const rating = dorama.vote_average ? dorama.vote_average.toFixed(1) : null;
 
   // Kodik da video qidirish
-  const kodikItems = await PlayerService.findDorama(
+  const kodikResult = await PlayerService.findDorama(
     title,
     dorama.original_name
   );
+  const kodikItems = kodikResult.items;
 
   const jsonLd = {
     "@context": "https://schema.org",

@@ -28,6 +28,7 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
   }, [season, item]);
 
   const [iframeError, setIframeError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   if (!item) {
     return (
@@ -41,6 +42,14 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
     item.seasons?.[season]?.episodes?.[episode] ??
     item.seasons?.[season]?.link ??
     item.link;
+
+  // Link o'zgarganda loading holatini qayta tiklaymiz
+  useEffect(() => {
+    setIsLoading(true);
+    setIframeError(false);
+  }, [link]);
+
+  const proxyLink = link ? `/api/player/proxy?url=${encodeURIComponent(link)}` : "";
 
   return (
     <div>
@@ -66,25 +75,39 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
       {/* Player (Iframe) */}
       <div className="relative aspect-video overflow-hidden rounded-2xl border border-line bg-black shadow-glow">
         {iframeError ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-panel text-center px-4">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-panel text-center px-4 z-10">
             <span className="text-mist mb-2">Видео недоступно или заблокировано</span>
             <button 
-              onClick={() => setIframeError(false)}
+              onClick={() => {
+                setIframeError(false);
+                setIsLoading(true);
+              }}
               className="rounded-full bg-violet px-4 py-2 text-white text-sm"
             >
               Попробовать снова
             </button>
           </div>
         ) : (
-          link ? (
-            <iframe
-              key={link}
-              src={normalizePlayerLink(link)}
-              className="h-full w-full"
-              allow="autoplay; fullscreen; encrypted-media"
-              allowFullScreen
-              onError={() => setIframeError(true)}
-            />
+          proxyLink ? (
+            <>
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-panel z-10">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-violet border-t-transparent" />
+                </div>
+              )}
+              <iframe
+                key={proxyLink}
+                src={proxyLink}
+                className={`h-full w-full transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+                allow="autoplay; fullscreen; encrypted-media"
+                allowFullScreen
+                onLoad={() => setIsLoading(false)}
+                onError={() => {
+                  setIsLoading(false);
+                  setIframeError(true);
+                }}
+              />
+            </>
           ) : (
             <div className="flex h-full items-center justify-center text-mist">
               Видео не найдено

@@ -1,9 +1,14 @@
 import { HttpClient } from "./core/HttpClient";
 import type { KodikResultItem } from "../types";
 
+export type FindDoramaResult = {
+  items: KodikResultItem[];
+  error?: "no_token" | "auth_failed" | "not_found" | "network_error";
+};
+
 export class PlayerService {
   private static get BASE() {
-    return "https://kodikapi.com";
+    return "https://kodik-api.com";
   }
 
   private static get TOKEN() {
@@ -37,61 +42,73 @@ export class PlayerService {
   static async findDorama(
     title: string,
     originalTitle?: string
-  ): Promise<KodikResultItem[]> {
-    if (!this.TOKEN) return [];
+  ): Promise<FindDoramaResult> {
+    if (!this.TOKEN) {
+      return { items: [], error: "no_token" };
+    }
 
-    const trySearch = async (q: string): Promise<KodikResultItem[]> => {
+    const trySearch = async (q: string): Promise<FindDoramaResult> => {
       try {
         const search = new URLSearchParams();
         search.set("token", this.TOKEN);
         search.set("title", q);
-        search.set("limit", "20"); // Ko'proq natija olaylik
-        // Dorama va animatsiyalarni o'tkazib yubormaslik uchun barcha kerakli tiplarni kiritamiz
-        search.set("types", "anime,anime-serial,foreign-serial,foreign-movie,cartoon-serial,cartoon-movie");
+        search.set("limit", "20");
+        search.set(
+          "types",
+          "anime,anime-serial,foreign-serial,foreign-movie,cartoon-serial,cartoon-movie"
+        );
         search.set("with_material_data", "true");
 
         const data = await HttpClient.fetch<{ results: KodikResultItem[] }>(
           `${this.BASE}/search?${search.toString()}`
         );
-        return data?.results ?? [];
+        if (data === null) {
+          // 401/403 yoki JSON parse hatosi
+          return { items: [], error: "auth_failed" };
+        }
+        const results = data.results ?? [];
+        return { items: results };
       } catch (err) {
-        console.error(`[Kodik API Error] Dorama/Anime qidirishda xatolik yuz berdi (Query: "${q}"):`, err);
-        return [];
+        console.error(`[Kodik API Error] Dorama qidirishda xatolik (Query: "${q}"):`, err);
+        return { items: [], error: "network_error" };
       }
     };
 
-    let results = await trySearch(title);
+    // birinchi qidiruv
+    let result = await trySearch(title);
 
-    if (results.length === 0 && originalTitle) {
-      results = await trySearch(originalTitle);
+    // ikkinchi urinish agar bo‘sh va originalTitle berilgan
+    if (result.items.length === 0 && originalTitle) {
+      result = await trySearch(originalTitle);
     }
 
-    // Noyob tarjimalarni ajratib olish (ba'zida kodik bir xil tarjimani turli sifatlarda ikki marta beradi)
-    const uniqueResults = [];
-    const seenTranslations = new Set<string>();
+    // bo‘sh natija → not_found (agar avval error bo'lmasa)
+    if (result.items.length === 0 && !result.error) {
+      result.error = "not_found";
+    }
 
-    for (const item of results) {
+    // noyob tarjimalar
+    const unique: KodikResultItem[] = [];
+    const seen = new Set<string>();
+    for (const item of result.items) {
       const transId = item.translation?.id ? String(item.translation.id) : "original";
-      if (!seenTranslations.has(transId)) {
-        seenTranslations.add(transId);
-        uniqueResults.push(item);
+      if (!seen.has(transId)) {
+        seen.add(transId);
+        unique.push(item);
       }
     }
 
-    // Softbox ni birinchi o'ringa, keyin boshqa rus dublyajlarini qo'yish
-    uniqueResults.sort((a, b) => {
-      const aTitle = a.translation?.title?.toLowerCase() || "";
-      const bTitle = b.translation?.title?.toLowerCase() || "";
-      
+    // sort softbox, rus
+    unique.sort((a, b) => {
+      const aTitle = a.translation?.title?.toLowerCase() ?? "";
+      const bTitle = b.translation?.title?.toLowerCase() ?? "";
       if (aTitle.includes("softbox")) return -1;
       if (bTitle.includes("softbox")) return 1;
-      
       if (aTitle.includes("рус") && !bTitle.includes("рус")) return -1;
       if (!aTitle.includes("рус") && bTitle.includes("рус")) return 1;
-
       return 0;
     });
 
-    return uniqueResults;
+    return { items: unique, error: result.error };
   }
 }
