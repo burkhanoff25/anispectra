@@ -67,13 +67,14 @@ function DoramaCard({ item }: { item: DoramaItem }) {
 export default async function DoramaPage({
   searchParams,
 }: {
-  searchParams: { page?: string; genre?: string };
+  searchParams: { page?: string; genre?: string; q?: string };
 }) {
   const page = Number(searchParams.page ?? 1) || 1;
   const genre = searchParams.genre ? Number(searchParams.genre) : undefined;
+  const q = searchParams.q;
 
   const [catalog, genres] = await Promise.all([
-    DoramaService.getCatalog({ page, genre }),
+    q ? DoramaService.search(q, page) : DoramaService.getCatalog({ page, genre }),
     DoramaService.getGenres(),
   ]);
 
@@ -84,8 +85,22 @@ export default async function DoramaPage({
         Корейские, японские и китайские сериалы на русском языке.
       </p>
 
+      {/* Search Form */}
+      <form action="/dorama" method="GET" className="mt-6 flex max-w-md items-center gap-2">
+        <input 
+          type="search" 
+          name="q" 
+          defaultValue={q}
+          placeholder="Поиск дорам..." 
+          className="w-full rounded-xl border border-line bg-panel px-4 py-2 text-sm text-paper placeholder-mist focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+        />
+        <button type="submit" className="rounded-xl bg-violet px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet/90">
+          Найти
+        </button>
+      </form>
+
       {/* Genre filter */}
-      {genres.length > 0 && (
+      {!q && genres.length > 0 && (
         <div className="mt-6 flex flex-wrap gap-2">
           <Link
             href="/dorama"
@@ -117,7 +132,7 @@ export default async function DoramaPage({
       {catalog.results.length === 0 ? (
         <EmptyState
           title="Ничего не найдено"
-          hint="Попробуйте выбрать другой жанр."
+          hint={q ? `По запросу "${q}" ничего не найдено.` : "Попробуйте выбрать другой жанр."}
         />
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
@@ -133,7 +148,7 @@ export default async function DoramaPage({
           {Array.from({ length: Math.min(catalog.total_pages, 10) }).map((_, i) => (
             <Link
               key={i}
-              href={`/dorama?page=${i + 1}${genre ? `&genre=${genre}` : ""}`}
+              href={`/dorama?page=${i + 1}${genre ? `&genre=${genre}` : ""}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
               className={`h-9 w-9 rounded-full text-center text-sm leading-9 transition ${
                 page === i + 1
                   ? "bg-violet text-white"
