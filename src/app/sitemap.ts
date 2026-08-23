@@ -22,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic Anime pages
   let animeUrls: MetadataRoute.Sitemap = [];
   try {
-    const releases = await AnimeService.getLatestReleases(100);
+    const releases = await AnimeService.getLatestReleases(50);
     animeUrls = releases.map((r) => ({
       url: `${baseUrl}/anime/${r.alias}`,
       lastModified: new Date(),
