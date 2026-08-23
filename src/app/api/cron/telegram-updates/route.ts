@@ -17,10 +17,10 @@ export async function GET(req: NextRequest) {
     }
 
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    const chatId = process.env.TELEGRAM_CHANNEL_ID || process.env.TELEGRAM_CHAT_ID;
 
     if (!botToken || !chatId) {
-      console.error("[CRON_ERROR] operation=telegramUpdates status=500 url=/api/cron/telegram-updates message=Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID in cron");
+      console.error("[CRON_ERROR] operation=telegramUpdates status=500 url=/api/cron/telegram-updates message=Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHANNEL_ID in cron");
       return NextResponse.json({ error: "Configuration Error" }, { status: 500 });
     }
 
