@@ -9,6 +9,24 @@ export async function POST(req: Request) {
     if (update.message) {
       const { message } = update;
 
+      // Handle /site command
+      if (message.text === '/site' || message.text === '/site@anispectra_support_bot') {
+        const botToken = process.env.TELEGRAM_BOT_TOKEN;
+        if (botToken) {
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: message.chat.id,
+              text: `🌐 Наш официальный сайт: https://anispectra.uz\nСмотрите лучшие аниме и дорамы бесплатно!`,
+              reply_to_message_id: message.message_id,
+              parse_mode: 'HTML',
+            }),
+          });
+        }
+        return NextResponse.json({ ok: true });
+      }
+
       // We only care if this message is a reply to our bot's message
       if (message.reply_to_message && message.text) {
         const repliedMessageId = message.reply_to_message.message_id;
