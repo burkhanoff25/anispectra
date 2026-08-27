@@ -44,6 +44,63 @@ const mainMenuKeyboard = new InlineKeyboard()
   .text("📅 Расписание", "cmd_calendar")
   .text("💬 Поддержка", "cmd_bug");
 
+// Force subscribe middleware
+const CHANNEL_USERNAME = "@Anispectra_uz";
+const CHANNEL_URL = "https://t.me/Anispectra_uz";
+
+bot.use(async (ctx, next) => {
+  if (!ctx.from) return next();
+  
+  const isCheckSub = ctx.callbackQuery && ctx.callbackQuery.data === "check_sub";
+
+  try {
+    const member = await ctx.api.getChatMember(CHANNEL_USERNAME, ctx.from.id);
+    if (["creator", "administrator", "member"].includes(member.status)) {
+      if (isCheckSub) {
+        await ctx.answerCallbackQuery({ text: "✅ Спасибо за подписку!" });
+        try { await ctx.deleteMessage(); } catch (e) {} // ignore if can't delete
+        
+        await ctx.api.setChatMenuButton({
+          chat_id: ctx.from.id,
+          menu_button: { type: "web_app", text: "Смотреть", web_app: { url: "https://anispectra.uz" } }
+        });
+        
+        return ctx.api.sendMessage(
+           ctx.from.id, 
+           "Привет! Я официальный бот AniSpectra 🎌\n\nЗдесь ты можешь искать аниме, дорамы и мангу, а также управлять своими подписками на новые серии.\n\nНажми на одну из кнопок ниже или отправь /help для справки.",
+           { reply_markup: mainMenuKeyboard }
+        );
+      }
+      return next();
+    }
+  } catch (e) {
+    console.error("Error checking subscription (is bot admin in channel?):", e);
+    // If error, proceed normally so we don't block users if the bot is removed from channel
+    if (isCheckSub) await ctx.answerCallbackQuery({ text: "✅ Ошибка проверки, пропускаем..." });
+    return next();
+  }
+
+  if (isCheckSub) {
+    await ctx.answerCallbackQuery({ text: "❌ Вы еще не подписались на канал!", show_alert: true });
+    return;
+  }
+
+  const kb = new InlineKeyboard()
+    .url("📢 Подписаться на канал", CHANNEL_URL).row()
+    .text("✅ Я подписался", "check_sub");
+
+  if (ctx.callbackQuery) {
+     await ctx.answerCallbackQuery();
+     await ctx.api.sendMessage(ctx.from.id, "Для использования бота необходимо подписаться на канал:", { reply_markup: kb });
+     return;
+  }
+
+  await ctx.reply(
+    "👋 <b>Добро пожаловать!</b>\n\nДля использования бота, пожалуйста, подпишитесь на наш официальный канал:", 
+    { reply_markup: kb, parse_mode: "HTML" }
+  );
+});
+
 bot.command("start", async (ctx) => {
   // Set the main menu button next to the input field
   await ctx.api.setChatMenuButton({
