@@ -35,6 +35,7 @@ bot.use(async (ctx, next) => {
 });
 
 const mainMenuKeyboard = new InlineKeyboard()
+  .webApp("🌐 Открыть AniSpectra", "https://anispectra.uz").row()
   .text("🔍 Поиск", "cmd_find").row()
   .text("📺 Онгоинги", "cmd_ongoing")
   .text("🎲 Случайное", "cmd_random").row()
@@ -43,6 +44,16 @@ const mainMenuKeyboard = new InlineKeyboard()
   .text("💬 Поддержка", "cmd_bug");
 
 bot.command("start", async (ctx) => {
+  // Set the main menu button next to the input field
+  await ctx.api.setChatMenuButton({
+    chat_id: ctx.chat.id,
+    menu_button: {
+      type: "web_app",
+      text: "Смотреть",
+      web_app: { url: "https://anispectra.uz" }
+    }
+  });
+
   await ctx.reply(
     "Привет! Я официальный бот AniSpectra 🎌\n\nЗдесь ты можешь искать аниме, дорамы и мангу, а также управлять своими подписками на новые серии.\n\nНажми на одну из кнопок ниже или отправь /help для справки.",
     { reply_markup: mainMenuKeyboard }
@@ -67,15 +78,19 @@ bot.command("help", async (ctx) => {
 /remove <название> — Отписаться от уведомлений
 /calendar — Расписание выхода
 /bug <текст> — Написать в поддержку
+/site — Ссылка на сайт (Mini App)
   `;
   await ctx.reply(helpText, { parse_mode: "Markdown" });
 });
 
 // Porting existing /site command
 bot.command("site", async (ctx) => {
+  const siteKeyboard = new InlineKeyboard()
+    .webApp("🚀 Открыть приложение", "https://anispectra.uz");
+    
   await ctx.reply(
-    `🌐 Наш официальный сайт: https://anispectra.uz\nСмотрите лучшие аниме и дорамы бесплатно!`,
-    { parse_mode: "HTML" }
+    `🌐 Наш официальный сайт: https://anispectra.uz\nСмотрите лучшие аниме и дорамы бесплатно прямо в Telegram!`,
+    { parse_mode: "HTML", reply_markup: siteKeyboard }
   );
 });
 
