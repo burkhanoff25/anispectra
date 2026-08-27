@@ -116,6 +116,7 @@ bot.command(["find", "f"], async (ctx) => {
     
     if (animes.length > 0) {
       text += `*Аниме:*\n`;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       animes.slice(0, 3).forEach((a: any) => {
         text += `— [${AnimeService.displayName(a)}](https://anispectra.uz/anime/${a.alias})\n`;
       });
@@ -124,6 +125,7 @@ bot.command(["find", "f"], async (ctx) => {
     
     if (doramas.results && doramas.results.length > 0) {
       text += `*Дорамы:*\n`;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       doramas.results.slice(0, 3).forEach((d: any) => {
         text += `— [${DoramaService.displayName(d)}](https://anispectra.uz/dorama/${d.id})\n`;
       });
@@ -132,6 +134,7 @@ bot.command(["find", "f"], async (ctx) => {
 
     if (mangas && mangas.length > 0) {
       text += `*Манга:*\n`;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mangas.slice(0, 3).forEach((m: any) => {
         text += `— [${MangaService.mangaTitle(m)}](https://anispectra.uz/manga/${m.id})\n`;
       });
@@ -144,6 +147,7 @@ bot.command(["find", "f"], async (ctx) => {
 
     await ctx.reply(text, { parse_mode: "Markdown", link_preview_options: { is_disabled: true } });
   } catch (e) {
+    console.error(e);
     console.error(e);
     await ctx.reply("Произошла ошибка при поиске.");
   }
@@ -164,6 +168,7 @@ bot.command("random", async (ctx) => {
       }
     }
   } catch (e) {
+    console.error(e);
     await ctx.reply("Произошла ошибка.");
   }
 });
@@ -178,6 +183,7 @@ bot.command("ongoing", async (ctx) => {
     });
     await ctx.reply(text, { parse_mode: "Markdown", link_preview_options: { is_disabled: true } });
   } catch (e) {
+    console.error(e);
     await ctx.reply("Произошла ошибка.");
   }
 });
@@ -220,6 +226,7 @@ bot.command("add", async (ctx) => {
     await ctx.reply(`✅ Вы успешно подписались на уведомления о выходе новых серий: *${titleName}*`, { parse_mode: "Markdown" });
   } catch (e) {
     console.error(e);
+    console.error(e);
     await ctx.reply("Произошла ошибка при подписке.");
   }
 });
@@ -235,6 +242,7 @@ bot.command("remove", async (ctx) => {
     });
     await ctx.reply(`✅ Вы отписались от уведомлений.`);
   } catch (e) {
+    console.error(e);
     await ctx.reply("Подписка не найдена или произошла ошибка.");
   }
 });
@@ -273,6 +281,7 @@ bot.on("callback_query:data", async (ctx, next) => {
       // Remove button or edit message (simplified)
       await ctx.editMessageReplyMarkup({ reply_markup: new InlineKeyboard() });
     } catch (e) {
+    console.error(e);
       await ctx.answerCallbackQuery({ text: "Ошибка или уже отписаны." });
     }
     return;
@@ -311,7 +320,8 @@ bot.command(["bug", "support"], async (ctx) => {
       }
     });
     await ctx.reply("✅ Ваше сообщение отправлено администрации.");
-  } catch(e) {
+  } catch (e) {
+    console.error(e);
     await ctx.reply("Произошла ошибка при отправке.");
   }
 });
