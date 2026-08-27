@@ -1,10 +1,11 @@
 import { Bot, InlineKeyboard } from "grammy";
 import { prisma } from "@/server/db/client";
 
-const token = process.env.TELEGRAM_BOT_TOKEN;
+// We check for TELEGRAM_BOT_TOKEN_2 first (for the new bot), fallback to TELEGRAM_BOT_TOKEN
+const token = process.env.TELEGRAM_BOT_TOKEN_2 || process.env.TELEGRAM_BOT_TOKEN;
 
 if (!token) {
-  console.warn("TELEGRAM_BOT_TOKEN is not defined!");
+  console.warn("Bot token is not defined in environment variables!");
 }
 
 export const bot = new Bot(token || "8341326272:AAHHByCB3AHZkYeWTn-Cetl5dK-uMhKiD9A");
