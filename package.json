@@ -6,7 +6,8 @@
     "dev": "node server.js",
     "build": "prisma generate && prisma db push --accept-data-loss && next build",
     "start": "NODE_ENV=production node server.js",
-    "start:bot": "ts-node --project tsconfig.ts-node.json src/scripts/telegram-userbot.ts",
+    "start:userbot": "ts-node --project tsconfig.ts-node.json src/scripts/telegram-userbot.ts",
+    "start:bot": "ts-node --project tsconfig.ts-node.json src/scripts/telegram-bot-polling.ts",
     "sync:history": "ts-node --project tsconfig.ts-node.json src/scripts/fetch-last-videos.ts",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
