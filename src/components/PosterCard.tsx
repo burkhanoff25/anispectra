@@ -19,7 +19,10 @@ export default function PosterCard({
       href={href}
       className="group w-[150px] shrink-0 snap-start sm:w-[170px] focus-visible:outline-none flex flex-col h-full"
     >
-      <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-line bg-panel shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-glow shrink-0">
+      <div 
+        className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-line bg-panel shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-glow shrink-0"
+        style={{ position: 'relative' }}
+      >
         {imageSrc ? (
           <Image
             src={imageSrc}

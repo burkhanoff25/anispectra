@@ -48,6 +48,7 @@ export default function HeroShorts({ shorts }: { shorts: YoutubeShort[] }) {
           <div 
             key={short.id} 
             className="group relative aspect-[9/16] cursor-pointer overflow-hidden rounded-xl bg-panel"
+            style={{ position: 'relative' }}
             onClick={() => setActiveVideoId(short.id)}
           >
             {/* Thumbnail */}

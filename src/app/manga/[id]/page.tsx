@@ -50,7 +50,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="grid gap-8 md:grid-cols-[220px_1fr]">
-        <div className="relative hidden aspect-[2/3] overflow-hidden rounded-2xl border border-line shadow-glow md:block">
+        <div className="relative hidden aspect-[2/3] overflow-hidden rounded-2xl border border-line shadow-glow md:block" style={{ position: 'relative' }}>
           {img && <Image src={img} alt={title} fill className="object-cover" />}
         </div>
         <div>

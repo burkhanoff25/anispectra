@@ -90,7 +90,7 @@ export default async function DoramaDetailPage({
 
       {/* Backdrop */}
       {backdrop && (
-        <div className="relative h-48 w-full overflow-hidden sm:h-64 md:h-80">
+        <div className="relative h-48 w-full overflow-hidden sm:h-64 md:h-80" style={{ position: 'relative' }}>
           <Image
             src={backdrop}
             alt={title}
@@ -114,7 +114,7 @@ export default async function DoramaDetailPage({
 
         <div className="grid gap-8 md:grid-cols-[220px_1fr]">
           {/* Poster */}
-          <div className="relative hidden aspect-[2/3] overflow-hidden rounded-2xl border border-line shadow-glow md:block">
+          <div className="relative hidden aspect-[2/3] overflow-hidden rounded-2xl border border-line shadow-glow md:block" style={{ position: 'relative' }}>
             {img ? (
               <Image src={img} alt={title} fill className="object-cover" />
             ) : (
