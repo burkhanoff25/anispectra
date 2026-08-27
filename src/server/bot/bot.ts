@@ -305,21 +305,19 @@ bot.command("calendar", async (ctx) => {
 bot.command(["bug", "support"], async (ctx) => {
   const text = ctx.match;
   if (!text) return ctx.reply("Укажите текст обращения после команды.");
-  // Usually you would send this to a specific group chat or save to DB.
-  // We can save it as SupportTicket in Prisma.
+  
   try {
     if (!ctx.from) return;
-    const user = await prisma.telegramUser.findUnique({ where: { id: BigInt(ctx.from.id) }});
-    if (!user || !user.userId) {
-      return ctx.reply("Пожалуйста, сначала привяжите свой аккаунт на сайте, чтобы использовать поддержку.");
+    
+    const adminChatId = process.env.TELEGRAM_CHANNEL_ID || process.env.TELEGRAM_CHAT_ID;
+    
+    if (!adminChatId) {
+      return ctx.reply("К сожалению, чат поддержки еще не настроен.");
     }
     
-    await prisma.supportTicket.create({
-      data: {
-        userId: user.userId,
-        message: text,
-      }
-    });
+    const msg = `📩 <b>Новое обращение (Bug/Support)</b>\nОт: @${ctx.from.username || ctx.from.first_name} (<code>${ctx.from.id}</code>)\n\nТекст: ${text}`;
+    await ctx.api.sendMessage(adminChatId, msg, { parse_mode: "HTML" });
+    
     await ctx.reply("✅ Ваше сообщение отправлено администрации.");
   } catch (e) {
     console.error(e);
@@ -330,34 +328,24 @@ bot.command(["bug", "support"], async (ctx) => {
 // Porting existing support reply logic
 bot.on("message:text", async (ctx, next) => {
   const replyTo = ctx.message.reply_to_message;
-  if (replyTo && replyTo.message_id) {
-    const repliedMessageId = replyTo.message_id;
-    const adminText = ctx.message.text;
+  
+  if (replyTo && replyTo.text && replyTo.text.includes("Новое обращение (Bug/Support)")) {
+    // Распарсим ID пользователя из текста сообщения (например: (123456789))
+    const match = replyTo.text.match(/\((\d+)\)/);
+    
+    if (match && match[1]) {
+      const targetUserId = parseInt(match[1]);
+      const adminText = ctx.message.text;
 
-    // Find the ticket that has this telegramMessageId
-    const ticket = await prisma.supportTicket.findFirst({
-      where: { telegramMessageId: repliedMessageId },
-      include: { user: true }
-    });
-
-    if (ticket) {
-      // Create the reply in our database
-      await prisma.supportReply.create({
-        data: {
-          ticketId: ticket.id,
-          message: adminText,
-        }
-      });
-
-      // Update ticket status
-      await prisma.supportTicket.update({
-        where: { id: ticket.id },
-        data: { status: 'REPLIED' }
-      });
-
-      await ctx.reply(`✅ Ответ доставлен пользователю ${ticket.user.name || ticket.user.email}.`, {
-        reply_parameters: { message_id: ctx.message.message_id }
-      });
+      try {
+        await ctx.api.sendMessage(targetUserId, `📩 <b>Ответ от поддержки:</b>\n\n${adminText}`, { parse_mode: "HTML" });
+        await ctx.reply(`✅ Ответ успешно доставлен пользователю.`, {
+          reply_parameters: { message_id: ctx.message.message_id }
+        });
+      } catch (err) {
+        console.error("Failed to send reply to user:", err);
+        await ctx.reply(`❌ Не удалось отправить ответ. Возможно, пользователь заблокировал бота.`);
+      }
       return; // Handled
     }
   }
