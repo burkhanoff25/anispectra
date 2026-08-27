@@ -10,7 +10,8 @@
     "start:bot": "ts-node --project tsconfig.ts-node.json src/scripts/telegram-bot-polling.ts",
     "sync:history": "ts-node --project tsconfig.ts-node.json src/scripts/fetch-last-videos.ts",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "postinstall": "prisma generate"
   },
   "engines": {
     "node": "22.x"
