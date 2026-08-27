@@ -73,10 +73,6 @@ export default function YoutubeModal({ videoId, isOpen, onClose, onNext, onPrev,
             className="h-full w-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             allowFullScreen
-            // @ts-expect-error - webkitallowfullscreen is a legacy attribute required by some iframe players
-            webkitallowfullscreen="true"
-            // @ts-expect-error - mozallowfullscreen is a legacy attribute required by some iframe players
-            mozallowfullscreen="true"
           ></iframe>
         </div>
 

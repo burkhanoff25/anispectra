@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import type { KodikResultItem } from "@/lib/types";
+import { normalizePlayerLink } from "@/lib/utils";
 
 export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
   const [selectedTransIdx, setSelectedTransIdx] = useState(0);
@@ -48,7 +49,7 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
     );
   }
 
-  const proxyLink = link ? `/api/player/proxy?url=${encodeURIComponent(link)}` : "";
+  const targetLink = link ? normalizePlayerLink(link) : "";
 
   return (
     <div>
@@ -87,7 +88,7 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
             </button>
           </div>
         ) : (
-          proxyLink ? (
+          targetLink ? (
             <>
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-panel z-10">
@@ -95,15 +96,11 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
                 </div>
               )}
               <iframe
-                key={proxyLink}
-                src={proxyLink}
+                key={targetLink}
+                src={targetLink}
                 className={`h-full w-full transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-                allow="autoplay *; fullscreen *; encrypted-media *"
+                allow="autoplay; fullscreen; encrypted-media"
                 allowFullScreen
-                // @ts-expect-error - webkitallowfullscreen is a legacy attribute required by some iframe players
-                webkitallowfullscreen="true"
-                // @ts-expect-error - mozallowfullscreen is a legacy attribute required by some iframe players
-                mozallowfullscreen="true"
                 onLoad={() => setIsLoading(false)}
                 onError={() => {
                   setIsLoading(false);
