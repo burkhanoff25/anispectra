@@ -293,7 +293,12 @@ bot.on("callback_query:data", async (ctx, next) => {
   if (data === "cmd_random") return ctx.api.sendMessage(ctx.callbackQuery.from.id, "/random");
   if (data === "cmd_list") return ctx.api.sendMessage(ctx.callbackQuery.from.id, "/list");
   if (data === "cmd_calendar") return ctx.api.sendMessage(ctx.callbackQuery.from.id, "/calendar");
-  if (data === "cmd_bug") return ctx.reply("Для связи с поддержкой отправьте: /bug <сообщение>");
+  if (data === "cmd_bug") return ctx.reply(
+    "🛠 <b>Служба поддержки AniSpectra</b>\n\n" +
+    "По всем вопросам, предложениям или если вы нашли ошибку, пожалуйста, пишите в нашего специального бота поддержки:\n" +
+    "👉 @anispectra_support_bot",
+    { parse_mode: "HTML" }
+  );
 
   await next();
 });
@@ -303,52 +308,13 @@ bot.command("calendar", async (ctx) => {
 });
 
 bot.command(["bug", "support"], async (ctx) => {
-  const text = ctx.match;
-  if (!text) return ctx.reply("Укажите текст обращения после команды.");
-  
-  try {
-    if (!ctx.from) return;
-    
-    const adminChatId = process.env.TELEGRAM_CHANNEL_ID || process.env.TELEGRAM_CHAT_ID;
-    
-    if (!adminChatId) {
-      return ctx.reply("К сожалению, чат поддержки еще не настроен.");
-    }
-    
-    const msg = `📩 <b>Новое обращение (Bug/Support)</b>\nОт: @${ctx.from.username || ctx.from.first_name} (<code>${ctx.from.id}</code>)\n\nТекст: ${text}`;
-    await ctx.api.sendMessage(adminChatId, msg, { parse_mode: "HTML" });
-    
-    await ctx.reply("✅ Ваше сообщение отправлено администрации.");
-  } catch (e) {
-    console.error(e);
-    await ctx.reply("Произошла ошибка при отправке.");
-  }
+  await ctx.reply(
+    "🛠 <b>Служба поддержки AniSpectra</b>\n\n" +
+    "По всем вопросам, предложениям или если вы нашли ошибку, пожалуйста, пишите в нашего специального бота поддержки:\n" +
+    "👉 @anispectra_support_bot\n\n" +
+    "🌐 Или на наш сайт: https://anispectra.uz",
+    { parse_mode: "HTML" }
+  );
 });
 
-// Porting existing support reply logic
-bot.on("message:text", async (ctx, next) => {
-  const replyTo = ctx.message.reply_to_message;
-  
-  if (replyTo && replyTo.text && replyTo.text.includes("Новое обращение (Bug/Support)")) {
-    // Распарсим ID пользователя из текста сообщения (например: (123456789))
-    const match = replyTo.text.match(/\((\d+)\)/);
-    
-    if (match && match[1]) {
-      const targetUserId = parseInt(match[1]);
-      const adminText = ctx.message.text;
-
-      try {
-        await ctx.api.sendMessage(targetUserId, `📩 <b>Ответ от поддержки:</b>\n\n${adminText}`, { parse_mode: "HTML" });
-        await ctx.reply(`✅ Ответ успешно доставлен пользователю.`, {
-          reply_parameters: { message_id: ctx.message.message_id }
-        });
-      } catch (err) {
-        console.error("Failed to send reply to user:", err);
-        await ctx.reply(`❌ Не удалось отправить ответ. Возможно, пользователь заблокировал бота.`);
-      }
-      return; // Handled
-    }
-  }
-  
-  await next();
-});
+// Logic removed since we redirect to support bot
