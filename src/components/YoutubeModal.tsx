@@ -71,8 +71,12 @@ export default function YoutubeModal({ videoId, isOpen, onClose, onNext, onPrev,
             src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&showinfo=0`}
             title="YouTube video player"
             className="h-full w-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             allowFullScreen
+            // @ts-expect-error - webkitallowfullscreen is a legacy attribute required by some iframe players
+            webkitallowfullscreen="true"
+            // @ts-expect-error - mozallowfullscreen is a legacy attribute required by some iframe players
+            mozallowfullscreen="true"
           ></iframe>
         </div>
 

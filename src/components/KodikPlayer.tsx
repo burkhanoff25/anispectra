@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useEffect } from "react";
 import type { KodikResultItem } from "@/lib/types";
-import { normalizePlayerLink } from "@/lib/utils";
 
 export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
   const [selectedTransIdx, setSelectedTransIdx] = useState(0);
@@ -30,6 +29,17 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
   const [iframeError, setIframeError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const link =
+    item?.seasons?.[season]?.episodes?.[episode] ??
+    item?.seasons?.[season]?.link ??
+    item?.link;
+
+  // Link o'zgarganda loading holatini qayta tiklaymiz
+  useEffect(() => {
+    setIsLoading(true);
+    setIframeError(false);
+  }, [link]);
+
   if (!item) {
     return (
       <div className="flex aspect-video items-center justify-center rounded-2xl border border-line bg-panel text-mist">
@@ -37,17 +47,6 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
       </div>
     );
   }
-
-  const link =
-    item.seasons?.[season]?.episodes?.[episode] ??
-    item.seasons?.[season]?.link ??
-    item.link;
-
-  // Link o'zgarganda loading holatini qayta tiklaymiz
-  useEffect(() => {
-    setIsLoading(true);
-    setIframeError(false);
-  }, [link]);
 
   const proxyLink = link ? `/api/player/proxy?url=${encodeURIComponent(link)}` : "";
 
@@ -99,8 +98,12 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
                 key={proxyLink}
                 src={proxyLink}
                 className={`h-full w-full transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-                allow="autoplay; fullscreen; encrypted-media"
+                allow="autoplay *; fullscreen *; encrypted-media *"
                 allowFullScreen
+                // @ts-expect-error - webkitallowfullscreen is a legacy attribute required by some iframe players
+                webkitallowfullscreen="true"
+                // @ts-expect-error - mozallowfullscreen is a legacy attribute required by some iframe players
+                mozallowfullscreen="true"
                 onLoad={() => setIsLoading(false)}
                 onError={() => {
                   setIsLoading(false);
