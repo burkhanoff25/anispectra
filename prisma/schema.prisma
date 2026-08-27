@@ -50,6 +50,7 @@ model User {
   mangaFavorites MangaFavorite[]
   doramaFavorites DoramaFavorite[]
   supportTickets SupportTicket[]
+  telegramUser  TelegramUser?
 }
 
 model VerificationToken {
@@ -162,4 +163,31 @@ model SupportReply {
 model SystemSetting {
   key   String @id
   value String
+}
+
+model TelegramUser {
+  id        BigInt   @id // Telegram user ID (BigInt because Telegram IDs can be huge)
+  username  String?
+  firstName String?
+  lastName  String?
+  userId    String?  @unique // Link to website User if linked later
+  createdAt DateTime @default(now())
+
+  user          User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  subscriptions TelegramSubscription[]
+}
+
+model TelegramSubscription {
+  id             String       @id @default(cuid())
+  telegramUserId BigInt
+  type           String       // "anime", "dorama", "manga"
+  releaseId      String       // ID or alias of the release
+  titleName      String       // Stored title for quick display
+  imageSrc       String?      // Stored image for quick display
+  lastEpisode    Int          @default(0) // Added for Stage 2 push notifications
+  createdAt      DateTime     @default(now())
+
+  telegramUser TelegramUser @relation(fields: [telegramUserId], references: [id], onDelete: Cascade)
+
+  @@unique([telegramUserId, type, releaseId])
 }
