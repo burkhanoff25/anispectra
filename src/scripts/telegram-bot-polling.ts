@@ -8,15 +8,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local"), override: false
 
 console.log("Starting AniSpectra Telegram Bot (Long Polling)...");
 
-// Dummy HTTP server for Render/Railway health checks
-const port = process.env.PORT || 8080;
-const server = http.createServer((req, res) => {
-  res.writeHead(200);
-  res.end("Bot is running!");
-});
-server.listen(port, () => {
-  console.log(`Dummy health check server listening on port ${port}`);
-});
+// Removed dummy server as Next.js handles the web service port
 
 bot.start({
   onStart: (botInfo) => {
