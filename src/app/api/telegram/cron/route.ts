@@ -3,6 +3,8 @@ import { prisma } from "@/server/db/client";
 import { bot } from "@/server/bot/bot";
 import { AnimeService } from "@/lib/api/anime.service";
 
+export const dynamic = "force-dynamic";
+
 // This is a simple cron endpoint to check for new episodes.
 // You should protect this with an authorization header in production
 // (e.g., checking process.env.CRON_SECRET).
