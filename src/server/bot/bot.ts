@@ -51,6 +51,11 @@ const CHANNEL_URL = "https://t.me/Anispectra_uz";
 bot.use(async (ctx, next) => {
   if (!ctx.from) return next();
   
+  // Only enforce subscription on messages and callback queries
+  if (!ctx.message && !ctx.callbackQuery) {
+    return next();
+  }
+  
   const isCheckSub = ctx.callbackQuery && ctx.callbackQuery.data === "check_sub";
 
   try {
