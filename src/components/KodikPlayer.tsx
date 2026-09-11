@@ -62,7 +62,7 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
               onClick={() => setSelectedTransIdx(idx)}
               className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
                 idx === selectedTransIdx
-                  ? "bg-violet text-white"
+                  ? "bg-gradient-to-r from-green-500 to-yellow-500 text-ink font-semibold"
                   : "border border-line bg-panel text-mist hover:text-white"
               }`}
             >
@@ -82,7 +82,7 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
                 setIframeError(false);
                 setIsLoading(true);
               }}
-              className="rounded-full bg-violet px-4 py-2 text-white text-sm"
+              className="rounded-full bg-gradient-to-r from-green-500 to-yellow-500 px-4 py-2 text-ink text-sm font-semibold"
             >
               Попробовать снова
             </button>
@@ -92,7 +92,7 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
             <>
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-panel z-10">
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-violet border-t-transparent" />
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-400 border-t-transparent" />
                 </div>
               )}
               <iframe
@@ -126,7 +126,7 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
                   key={s}
                   onClick={() => setSeason(s)}
                   className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                    s === season ? "bg-violet text-white" : "border border-line bg-panel text-mist"
+                    s === season ? "bg-gradient-to-r from-green-500 to-yellow-500 text-ink font-semibold" : "border border-line bg-panel text-mist"
                   }`}
                 >
                   {s} сезон
@@ -141,7 +141,7 @@ export default function KodikPlayer({ items }: { items: KodikResultItem[] }) {
                   key={e}
                   onClick={() => setEpisode(e)}
                   className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                    e === episode ? "bg-violet text-white" : "border border-line bg-panel text-mist"
+                    e === episode ? "bg-gradient-to-r from-green-500 to-yellow-500 text-ink font-semibold" : "border border-line bg-panel text-mist"
                   }`}
                 >
                   {e} серия

@@ -51,7 +51,7 @@ export default function Hero({ release }: { release: AniLibertyRelease }) {
           </div>
           <Link
             href={`/anime/${release.alias}`}
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-spectra bg-[length:200%_100%] px-6 py-3 font-display text-sm font-bold text-ink shadow-glow transition hover:bg-[length:120%_100%]"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-yellow-400 bg-[length:200%_100%] px-6 py-3 font-display text-sm font-bold text-ink shadow-glow transition hover:opacity-90"
           >
             Смотреть сейчас
           </Link>

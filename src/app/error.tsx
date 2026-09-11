@@ -20,7 +20,7 @@ export default function GlobalError({
         <p className="mt-2 text-sm text-mist">Попробуйте обновить страницу.</p>
         <button
           onClick={reset}
-          className="mt-6 rounded-full bg-violet px-6 py-2 text-sm font-semibold text-white transition hover:bg-violet/90"
+          className="mt-6 rounded-full bg-gradient-to-r from-green-500 to-yellow-500 px-6 py-2 text-sm font-semibold text-ink transition hover:opacity-90"
         >
           Обновить
         </button>

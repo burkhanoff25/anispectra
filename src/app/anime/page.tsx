@@ -35,7 +35,7 @@ export default async function AnimeCatalogPage({
           <Link
             href="/anime"
             className={`rounded-full px-3 py-1.5 text-sm ${
-              !genre ? "bg-violet text-white" : "border border-line text-mist"
+              !genre ? "bg-gradient-to-r from-green-500 to-yellow-500 text-ink font-semibold" : "border border-line text-mist"
             }`}
           >
             Все жанры
@@ -45,7 +45,7 @@ export default async function AnimeCatalogPage({
               key={g.id}
               href={`/anime?genre=${g.id}`}
               className={`rounded-full px-3 py-1.5 text-sm ${
-                genre === g.id ? "bg-violet text-white" : "border border-line text-mist"
+                genre === g.id ? "bg-gradient-to-r from-green-500 to-yellow-500 text-ink font-semibold" : "border border-line text-mist"
               }`}
             >
               {g.name}
@@ -81,7 +81,7 @@ export default async function AnimeCatalogPage({
               key={i}
               href={`/anime?page=${i + 1}${genre ? `&genre=${genre}` : ""}`}
               className={`h-9 w-9 rounded-full text-center text-sm leading-9 ${
-                page === i + 1 ? "bg-violet text-white" : "border border-line text-mist"
+                page === i + 1 ? "bg-gradient-to-r from-green-500 to-yellow-500 text-ink font-semibold" : "border border-line text-mist"
               }`}
             >
               {i + 1}

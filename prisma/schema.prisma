@@ -191,3 +191,26 @@ model TelegramSubscription {
 
   @@unique([telegramUserId, type, releaseId])
 }
+
+model Anime {
+  id           String    @id @default(cuid())
+  title        String
+  poster       String?
+  description  String?
+  release_year Int?
+  genres       String?
+  createdAt    DateTime  @default(now())
+  
+  episodes     Episode[]
+}
+
+model Episode {
+  id              String   @id @default(cuid())
+  anime_id        String
+  episode_number  Int
+  title           String?
+  stream_url      String
+  last_checked_at DateTime @default(now())
+
+  anime           Anime    @relation(fields: [anime_id], references: [id], onDelete: Cascade)
+}

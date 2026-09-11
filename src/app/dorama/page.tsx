@@ -94,7 +94,7 @@ export default async function DoramaPage({
           placeholder="Поиск дорам..." 
           className="w-full rounded-xl border border-line bg-panel px-4 py-2 text-sm text-paper placeholder-mist focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
         />
-        <button type="submit" className="rounded-xl bg-violet px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet/90">
+        <button type="submit" className="rounded-xl bg-gradient-to-r from-green-500 to-yellow-500 px-4 py-2 text-sm font-semibold text-ink transition hover:opacity-90">
           Найти
         </button>
       </form>
@@ -106,7 +106,7 @@ export default async function DoramaPage({
             href="/dorama"
             className={`rounded-full px-3 py-1.5 text-sm transition ${
               !genre
-                ? "bg-violet text-white"
+                ? "bg-gradient-to-r from-green-500 to-yellow-500 text-ink font-semibold"
                 : "border border-line text-mist hover:border-accent hover:text-accent"
             }`}
           >
@@ -118,7 +118,7 @@ export default async function DoramaPage({
               href={`/dorama?genre=${g.id}`}
               className={`rounded-full px-3 py-1.5 text-sm transition ${
                 genre === g.id
-                  ? "bg-violet text-white"
+                  ? "bg-gradient-to-r from-green-500 to-yellow-500 text-ink font-semibold"
                   : "border border-line text-mist hover:border-accent hover:text-accent"
               }`}
             >
@@ -151,7 +151,7 @@ export default async function DoramaPage({
               href={`/dorama?page=${i + 1}${genre ? `&genre=${genre}` : ""}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
               className={`h-9 w-9 rounded-full text-center text-sm leading-9 transition ${
                 page === i + 1
-                  ? "bg-violet text-white"
+                  ? "bg-gradient-to-r from-green-500 to-yellow-500 text-ink font-semibold"
                   : "border border-line text-mist hover:border-accent hover:text-accent"
               }`}
             >

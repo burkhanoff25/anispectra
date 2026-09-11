@@ -1,7 +1,6 @@
 import { bot } from "@/server/bot/bot";
 import * as dotenv from "dotenv";
 import * as path from "path";
-import * as http from "http";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local"), override: false });
@@ -21,8 +20,9 @@ bot.api.deleteWebhook({ drop_pending_updates: true })
             console.log(`Bot @${botInfo.username} successfully started!`);
           },
         });
-      } catch (err: any) {
-        if (err.error_code === 409) {
+      } catch (err: unknown) {
+        const error = err as { error_code?: number };
+        if (error.error_code === 409) {
           console.warn("409 Conflict: Boshqa bot instansi ishlayapti (ehtimol Render'da eski versiya yopilmoqda). 10 soniyadan so'ng qayta urinib ko'ramiz...");
           setTimeout(startPolling, 10000);
         } else {

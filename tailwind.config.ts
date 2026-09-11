@@ -13,14 +13,14 @@ const config: Config = {
         line: "#26263A",
         mist: "#9A96B3",
         paper: "#F3F1FA",
-        violet: "#7C5CFF",
-        violet2: "#5B3DE0",
+        violet: "#22C55E",
+        violet2: "#16A34A",
         coral: "#FF4F79",
         gold: "#FFC24B",
-        teal: "#3CE7C0",
+        teal: "#FACC15",
         // Semantic aliases used across components
-        accent: "#7C5CFF",
-        primary: "#7C5CFF",
+        accent: "#22C55E",
+        primary: "#22C55E",
       },
       fontFamily: {
         display: ["var(--font-display)", "sans-serif"],
@@ -28,10 +28,13 @@ const config: Config = {
       },
       backgroundImage: {
         spectra:
-          "linear-gradient(90deg,#7C5CFF 0%,#5B3DE0 22%,#FF4F79 48%,#FFC24B 74%,#3CE7C0 100%)"
+          "linear-gradient(90deg, #22C55E 0%, #4ADE80 30%, #FACC15 60%, #EAB308 100%)",
+        rgb:
+          "linear-gradient(90deg, #22C55E 0%, #4ADE80 30%, #FACC15 60%, #EAB308 100%)",
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(124,92,255,0.25), 0 20px 60px -20px rgba(124,92,255,0.45)"
+        glow: "0 0 0 1px rgba(34,197,94,0.3), 0 20px 60px -20px rgba(250,204,21,0.3)",
+        "rgb-glow": "0 0 15px rgba(34,197,94,0.4), 0 0 30px rgba(250,204,21,0.3)"
       },
       keyframes: {
         drift: {

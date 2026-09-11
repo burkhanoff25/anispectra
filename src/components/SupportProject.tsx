@@ -6,8 +6,8 @@ export default function SupportProject() {
       <div className="relative w-full h-full flex items-center justify-between overflow-hidden bg-ink px-6 sm:px-12 border border-white/5">
         {/* Background Decorative Elements */}
         <div className="absolute inset-0 opacity-20 mix-blend-overlay"></div>
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/30 rounded-full blur-[100px] translate-x-1/3 -translate-y-1/4"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-500/20 rounded-full blur-[100px] -translate-x-1/4 translate-y-1/4"></div>
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-green-500/20 rounded-full blur-[100px] translate-x-1/3 -translate-y-1/4"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-yellow-500/20 rounded-full blur-[100px] -translate-x-1/4 translate-y-1/4"></div>
 
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between w-full gap-6 md:gap-12">
           
@@ -15,13 +15,13 @@ export default function SupportProject() {
           <div className="flex-1 w-full max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 mb-3 sm:mb-4 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
               </span>
               <span className="text-[10px] sm:text-xs font-semibold text-white tracking-widest uppercase">Поддержка</span>
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white mb-2 sm:mb-4 leading-tight">
-              Ваш вклад <br className="hidden sm:block" /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-orange-400">создает будущее</span>
+              Ваш вклад <br className="hidden sm:block" /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-yellow-300 to-yellow-400">создает будущее</span>
             </h2>
             <p className="text-xs sm:text-sm md:text-base leading-relaxed max-w-xl" style={{ color: '#e2e8f0' }}>
               Anispectra создается и поддерживается благодаря вам. Помогите нам оплачивать сервера и развивать новые крутые функции! Любая сумма помогает нам стать лучше. ❤️

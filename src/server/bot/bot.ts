@@ -28,8 +28,8 @@ bot.use(async (ctx, next) => {
           lastName: ctx.from.last_name,
         },
       });
-    } catch (e) {
-      console.error("Error upserting TelegramUser:", e);
+    } catch {
+      console.error("Error upserting TelegramUser:");
     }
   }
   return next();
@@ -63,7 +63,7 @@ bot.use(async (ctx, next) => {
     if (["creator", "administrator", "member"].includes(member.status)) {
       if (isCheckSub) {
         await ctx.answerCallbackQuery({ text: "✅ Спасибо за подписку!" });
-        try { await ctx.deleteMessage(); } catch (e) {} // ignore if can't delete
+        try { await ctx.deleteMessage(); } catch { /* ignore if can't delete */ }
         
         await ctx.api.setChatMenuButton({
           chat_id: ctx.from.id,

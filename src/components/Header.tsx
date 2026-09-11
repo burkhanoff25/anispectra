@@ -4,17 +4,24 @@ import SearchBox from "./SearchBox";
 
 const NAV = [
   { href: "/anime", label: "Аниме" },
+
   { href: "/dorama", label: "Дорамы" },
   { href: "/manga", label: "Манга" },
   { href: "/schedule", label: "Расписание" },
   { href: "/shorts", label: "Shorts" },
   { href: "/watch-party", label: "Комната" },
+  { href: "/uz-anime", label: "Уз аниме" },
   { href: "https://t.me/Anispectra_uz", label: "Telegram", external: true },
 ];
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-40 border-b border-line/70 bg-ink/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line/70 bg-ink/85 backdrop-blur relative">
+      {/* RGB Neon Light Strip */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-spectra bg-[length:200%_100%] animate-drift opacity-75 shadow-[0_1px_10px_rgba(34,197,94,0.4)] pointer-events-none"
+        aria-hidden
+      />
       <div className="mx-auto flex max-w-7xl items-center gap-6 px-4 py-3 sm:px-6">
         <Link href="/" className="flex flex-col leading-none shrink-0">
           <span className="font-display text-xl font-extrabold tracking-tight text-paper">

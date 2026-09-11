@@ -3,10 +3,12 @@ import Link from "next/link";
 export default function ShelfRow({
   title,
   seeAllHref,
+  seeAllLabel,
   children
 }: {
   title: string;
   seeAllHref?: string;
+  seeAllLabel?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -14,8 +16,8 @@ export default function ShelfRow({
       <div className="mb-4 flex items-end justify-between">
         <h2 className="font-display text-lg font-bold text-paper sm:text-xl">{title}</h2>
         {seeAllHref && (
-          <Link href={seeAllHref} className="text-sm font-medium text-violet hover:text-paper">
-            Смотреть всё →
+          <Link href={seeAllHref} className="text-sm font-medium text-green-400 hover:text-paper">
+            {seeAllLabel || "Смотреть всё →"}
           </Link>
         )}
       </div>
